@@ -33,11 +33,13 @@ Then open `http://video-lab-<your-team>.cosmos.vastdata.com` (same host as `INGR
 
 Inference for the pipeline runs on **NVIDIA** models hosted on **CoreWeave**:
 
-| Model | Role in VSS |
-|-------|-------------|
-| **NVIDIA Cosmos Reason2** (`nvidia/cosmos-reason2-8b`) | Video understanding / reasoning over segments |
-| **NVIDIA Cosmos Embed1** (`nvidia/cosmos-embed1`) | Text and visual embeddings (256-dim) for hybrid search |
-| **YOLO11** (`yolo11s`) | Object detection (bounding boxes / labels) |
+
+| Model                                                  | Role in VSS                                            |
+| ------------------------------------------------------ | ------------------------------------------------------ |
+| **NVIDIA Cosmos Reason2** (`nvidia/cosmos-reason2-8b`) | Video understanding / reasoning over segments          |
+| **NVIDIA Cosmos Embed1** (`nvidia/cosmos-embed1`)      | Text and visual embeddings (256-dim) for hybrid search |
+| **YOLO11** (`yolo11s`)                                 | Object detection (bounding boxes / labels)             |
+
 
 All teams share these CoreWeave-backed endpoints. You don’t deploy the models yourself — ingest and search call them through your pipeline and backend.
 
@@ -46,6 +48,9 @@ All teams share these CoreWeave-backed endpoints. You don’t deploy the models 
 ## Data Engine
 
 ### VSS Blueprint
+
+DataEngine url UI:
+https://10.146.15.201/dataengine/
 
 Your team’s ingest runs as a **VAST DataEngine** serverless pipeline. A video chunk lands in S3, then functions run in sequence until searchable rows exist in VastDB.
 
@@ -57,18 +62,20 @@ S3 chunks (bucket)  →  Segmenter  →  S3 segments (bucket)
 
 A separate **events / prompt-suggester** function runs on a schedule and feeds UI suggestions.
 
-<img src="docs/hackathon/vss-pipeline.png" alt="VAST DataEngine pipeline" width="480" />
+
 
 **VAST DataEngine (pipeline’s tab)** — there you can edit the pipeline and see the pipeline’s flow, logs, traces, etc.
 
-| Function | What it does |
-|----------|--------------|
-| **Segmenter** | Splits each uploaded chunk into short fixed-length clips and writes them to the segments bucket. |
-| **Detector** | Runs **YOLO11** on each segment and records object classes, counts, and bbox sidecars. |
-| **Reasoner** | Calls **NVIDIA Cosmos Reason2** to write a searchable natural-language description of the segment. |
-| **Embedder** | Calls **NVIDIA Cosmos Embed1** to build text (and visual) vectors for hybrid search. |
-| **VastDB writer** | Persists embeddings, reasoning, detections, and metadata as a row in your VastDB collection. |
-| **Events (prompt-suggester)** | Periodically scans recent segments and writes suggested search prompts / key events for the UI. |
+
+| Function                      | What it does                                                                                       |
+| ----------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Segmenter**                 | Splits each uploaded chunk into short fixed-length clips and writes them to the segments bucket.   |
+| **Detector**                  | Runs **YOLO11** on each segment and records object classes, counts, and bbox sidecars.             |
+| **Reasoner**                  | Calls **NVIDIA Cosmos Reason2** to write a searchable natural-language description of the segment. |
+| **Embedder**                  | Calls **NVIDIA Cosmos Embed1** to build text (and visual) vectors for hybrid search.               |
+| **VastDB writer**             | Persists embeddings, reasoning, detections, and metadata as a row in your VastDB collection.       |
+| **Events (prompt-suggester)** | Periodically scans recent segments and writes suggested search prompts / key events for the UI.    |
+
 
 You don’t need to redeploy this graph for the hackathon — treat it as the engine behind search, dashboard, and suggestions.
 
@@ -78,13 +85,15 @@ You don’t need to redeploy this graph for the hackathon — treat it as the en
 
 For your team you already have:
 
-| Piece | What it is |
-|-------|------------|
-| **Ingest pipeline** | DataEngine functions that turn video chunks into searchable moments (segment → detect → reason → embed → write VastDB) |
-| **UI** | Web app at your `INGRESS_URL` (frontend + backend) |
-| **S3 buckets** | Chunks + segments for uploads |
-| **VastDB** | Indexed segments, embeddings, detections, reasoning text |
-| **This repo in Cursor** | Agent skills that know how to call every important API |
+
+| Piece                   | What it is                                                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Ingest pipeline**     | DataEngine functions that turn video chunks into searchable moments (segment → detect → reason → embed → write VastDB) |
+| **UI**                  | Web app at your `INGRESS_URL` (frontend + backend)                                                                     |
+| **S3 buckets**          | Chunks + segments for uploads                                                                                          |
+| **VastDB**              | Indexed segments, embeddings, detections, reasoning text                                                               |
+| **This repo in Cursor** | Agent skills that know how to call every important API                                                                 |
+
 
 Open the UI, log in with your team user, and also open this project in **Cursor**. The skills are how you move fast.
 
@@ -95,19 +104,19 @@ Open the UI, log in with your team user, and also open this project in **Cursor*
 1. Go to your **Ingress URL** (`INGRESS_URL` in your team config).
 2. **Log in** with your team’s username and password (`USERNAME` / `PASSWORD` in `team-configs/<your-team>.config`).
 
-<img src="docs/hackathon/vss-login.png" alt="VSS login" width="360" />
+
 
 *Log in with your team’s username.*
 
-3. Use the **Search** tab to query the archive.
+1. Use the **Search** tab to query the archive.
 
-<img src="docs/hackathon/vss-search-tab.png" alt="VSS search tab" width="520" />
+
 
 *The Search tab.*
 
-4. Open the **Dashboard** tab to inspect ingest health, object counts, and pipeline alignment.
+1. Open the **Dashboard** tab to inspect ingest health, object counts, and pipeline alignment.
 
-<img src="docs/hackathon/vss-dasboard-tab.png" alt="VSS dashboard" width="520" />
+
 
 *The VSS dashboard.*
 
@@ -130,13 +139,15 @@ Judges care about **clarity of the use case**, **clever use of search + metadata
 
 ## Starter videos
 
-There are three shared sample videos for each team’s pipeline:
+There are two shared sample videos for each team’s pipeline:
 
-| | Title | URL |
-|--|-------|-----|
-| **Video 1** | This Happens in Manhattan When Everyone Goes Outside | https://www.youtube.com/watch?v=c6mxqc4HYOk |
-| **Video 2** | 4K Road traffic video for object detection and tracking | https://www.youtube.com/watch?v=MNn9qKG2UFI |
-| **Video 3** | *(organizers — add URL)* | `url3` |
+
+|             | Title                                                   | URL                                                                                        |
+| ----------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Video 1** | This Happens in Manhattan When Everyone Goes Outside    | [https://www.youtube.com/watch?v=c6mxqc4HYOk](https://www.youtube.com/watch?v=c6mxqc4HYOk) |
+| **Video 2** | 4K Road traffic video for object detection and tracking | [https://www.youtube.com/watch?v=MNn9qKG2UFI](https://www.youtube.com/watch?v=MNn9qKG2UFI) |
+
+
 
 Use these to explore search, metadata, suggestions, dashboard, and agent Q&A out of the box.
 
@@ -150,21 +161,23 @@ You do **not** need to memorize REST paths. In Cursor, describe what you want; t
 
 Useful skills (start here):
 
-| Skill | Use it for |
-|-------|------------|
-| `retrieval/login` | Get a JWT with your team username/password |
-| `retrieval/list-metadata` | Discover filterable fields and legal values |
-| `retrieval/search` | Semantic / hybrid search + optional LLM synthesis |
-| `retrieval/suggest-prompts` | AI-generated search chips & key events |
-| `retrieval/dashboard` | Counts, quality, objects, ingest vs index health |
-| `retrieval/agent-qa` | Natural-language Q&A grounded in the archive |
-| `ingest/upload-videos` | Put fixed-length (~30s) chunks into your S3 chunks bucket |
-| `ingest/stream-capture` | Start/stop live/URL capture via the API |
+
+| Skill                       | Use it for                                                |
+| --------------------------- | --------------------------------------------------------- |
+| `retrieval/login`           | Get a JWT with your team username/password                |
+| `retrieval/list-metadata`   | Discover filterable fields and legal values               |
+| `retrieval/search`          | Semantic / hybrid search + optional LLM synthesis         |
+| `retrieval/suggest-prompts` | AI-generated search chips & key events                    |
+| `retrieval/dashboard`       | Counts, quality, objects, ingest vs index health          |
+| `retrieval/agent-qa`        | Natural-language Q&A grounded in the archive              |
+| `ingest/upload-videos`      | Put fixed-length (~30s) chunks into your S3 chunks bucket |
+| `ingest/stream-capture`     | Start/stop live/URL capture via the API                   |
+
 
 And a lot more :)  
 Ask Cursor to discover the skills. He’s your best friend 🙂
 
-Full skill index: [`.cursor/README.md`](.cursor/README.md)
+Full skill index: `[.cursor/README.md](.cursor/README.md)`
 
 ---
 
@@ -177,7 +190,7 @@ Write full prompts in Cursor: name what you want, point at your team config, and
 **1. Ingest and verify indexing**
 
 > Ingest this video into my team environment:  
-> https://www.youtube.com/watch?v=c6mxqc4HYOk  
+> [https://www.youtube.com/watch?v=c6mxqc4HYOk](https://www.youtube.com/watch?v=c6mxqc4HYOk)  
 > Credentials are in `team-configs/<my-team>.config`.  
 > Wait until the video is fully indexed, then run basic sanity checks on counts and pipeline health before we continue.  
 > *(Cursor will use skills: `ingest/stream-capture`, `retrieval/dashboard`, `retrieval/login`)*
