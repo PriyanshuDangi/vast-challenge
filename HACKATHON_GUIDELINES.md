@@ -62,7 +62,7 @@ S3 chunks (bucket)  →  Segmenter  →  S3 segments (bucket)
 
 A separate **events / prompt-suggester** function runs on a schedule and feeds UI suggestions.
 
-
+![VAST DataEngine pipeline](docs/hackathon/vss-pipeline.png)
 
 **VAST DataEngine (pipeline’s tab)** — there you can edit the pipeline and see the pipeline’s flow, logs, traces, etc.
 
@@ -104,19 +104,19 @@ Open the UI, log in with your team user, and also open this project in **Cursor*
 1. Go to your **Ingress URL** (`INGRESS_URL` in your team config).
 2. **Log in** with your team’s username and password (`USERNAME` / `PASSWORD` in `team-configs/<your-team>.config`).
 
-
+![VSS login](docs/hackathon/vss-login.png)
 
 *Log in with your team’s username.*
 
-1. Use the **Search** tab to query the archive.
+3. Use the **Search** tab to query the archive.
 
-
+![VSS search tab](docs/hackathon/vss-search-tab.png)
 
 *The Search tab.*
 
-1. Open the **Dashboard** tab to inspect ingest health, object counts, and pipeline alignment.
+4. Open the **Dashboard** tab to inspect ingest health, object counts, and pipeline alignment.
 
-
+![VSS dashboard](docs/hackathon/vss-dasboard-tab.png)
 
 *The VSS dashboard.*
 
