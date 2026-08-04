@@ -50,7 +50,7 @@ All teams share these CoreWeave-backed endpoints. You don’t deploy the models 
 ### VSS Blueprint
 
 DataEngine url UI:
-https://10.146.15.201/dataengine/
+https://10.146.15.201/#/login/builder-series-poc
 
 Your team’s ingest runs as a **VAST DataEngine** serverless pipeline. A video chunk lands in S3, then functions run in sequence until searchable rows exist in VastDB.
 
