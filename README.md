@@ -2,7 +2,9 @@
 
 Cursor agent skills for the VSS2 video search stack — ingest video into the pipeline and query the indexed archive.
 
-Open this repo (or clone it into a workspace) so Cursor agents can discover and follow the skills under [`.cursor/skills/`](.cursor/skills/).
+**Hackathon participants:** start with **[HACKATHON_GUIDELINES.md](HACKATHON_GUIDELINES.md)** (setup, UI walkthrough, starter videos, example prompts). UI screenshots are in [`docs/hackathon/`](docs/hackathon/).
+
+Open this repo in Cursor so agents discover skills under [`.cursor/skills/`](.cursor/skills/). Add your credentials file at `team-configs/<your-team>.config` (see [team-configs/README.md](team-configs/README.md)).
 
 ## What’s in here
 
