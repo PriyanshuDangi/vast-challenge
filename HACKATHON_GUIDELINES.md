@@ -102,7 +102,7 @@ For your team you already have:
 git clone git@git.vastdata.com:vastde/vss-blueprint.git
 ```
 
-**You do not have to touch the source code.** The live UI, APIs, and Cursor skills are enough to ship a strong demo — search, filters, re-ingest, dashboards, mini-apps on top of the archive. Changing the Blueprint is optional: use it when you need a custom behavior; skip it when product + skills already get you there. Great builds happen both ways.
+Cloning or changing the Blueprint is **not a requirement**. The live UI, APIs, and Cursor skills in this repo are enough for a strong demo — search, filters, re-ingest, dashboards, mini-apps on top of the archive. Dig into the source only if you want custom pipeline/UI behavior.
 
 Open the UI, log in with your team user, and open **this skills repo** in **Cursor** (add the source repo only if you want to modify the stack). Skills are how you move fast against the live APIs.
 
