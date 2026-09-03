@@ -33,7 +33,8 @@ Params: `field` (required, must be a filterable column), `prefix` (optional), `l
 
 ## Ingest field catalog — `GET /api/v1/metadata/ingest-config` (public, no auth)
 
-Canonical options for **upload/stream/batch-sync** UIs (scenarios, capture types, labels). Use this to populate ingest metadata in `ingest/upload-videos` and `ingest/stream-capture`.
+Canonical options for ingest metadata (scenarios, capture types, labels). Use this
+to populate metadata overrides in `ingest/reingest-videos`.
 
 ```bash
 curl -s "$BACKEND/api/v1/metadata/ingest-config"

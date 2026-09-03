@@ -1,0 +1,25 @@
+# Deployment (vss2)
+
+Deploy and operate the **retrieval side** (backend, frontend, batch-sync) on Kubernetes from `deployments/vss-k8s-application/`. Needs `kubectl` pointed at the cluster. (The DataEngine ingest pipeline deploys separately — see `dataengine-components/`.)
+
+## Skills
+
+| Skill | Purpose |
+|-------|---------|
+| [build-yamls](build-yamls/SKILL.md) | Fill `team-configs/secrets/backend-secret.yaml` + image tags; align with ingest `vss-cli-secret.yaml` |
+| [deploy](deploy/SKILL.md) | Build/push images + `QUICK_DEPLOY.sh <ns> <cluster>` + ingress DNS |
+| [health](health/SKILL.md) | `kubectl get pods`, `/health` (8000), `GET /api/v1/config` |
+
+## Components
+
+| App label | Port | Probe | Image |
+|-----------|------|-------|-------|
+| `video-backend` | 8000 | `/health` | `vss-video-backend` |
+| `video-frontend` | 80 | — | `vss-video-frontend` |
+| `video-batch-sync` | — | — | `vss-video-batch-sync` |
+
+Secret `video-backend-secret` comes from [`team-configs/secrets/backend-secret.yaml`](../../team-configs/secrets/backend-secret.yaml) (`config.yaml` at `/etc/secrets`). If missing, ask the user to place it there. Ingress: `video-lab.<cluster>.vastdata.com` (frontend + `/api` → backend).
+
+## Critical coupling
+
+Backend secret (underscore keys) must align with ingest [`team-configs/secrets/vss-cli-secret.yaml`](../../team-configs/secrets/vss-cli-secret.yaml) on S3, models, dims (**256**), and collection names, or search returns nothing. VastDB **endpoint** is the intentional exception: backend `vdb_endpoint` = Query Engine VIP (reads), ingest `vdbendpoint` = data VIP (writes). See `team-configs/secrets/README.md`.
