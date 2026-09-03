@@ -10,25 +10,6 @@ Each team gets a git repo with the **Cursor skills** for VSS.
 
 ---
 
-## Add your Ingress URL to `/etc/hosts`
-
-Your UI hostname (`INGRESS_URL` in `team-configs/<your-team>.config`) is not public DNS — map it on your laptop first.
-
-```bash
-sudo vim /etc/hosts
-```
-
-Add a line (replace the IP if your organizers gave you a different one, and use **your** team name):
-
-```bash
-# VSS hackathon — team UI
-10.146.15.121  video-lab-<your-team>.cosmos.vastdata.com
-```
-
-Then open `http://video-lab-<your-team>.cosmos.vastdata.com` (same host as `INGRESS_URL` in your config).
-
----
-
 ## Models (NVIDIA on CoreWeave)
 
 Inference for the pipeline runs on shared **GPU endpoints** (NVIDIA Cosmos + YOLO + Canary). You don’t deploy the models yourself.
