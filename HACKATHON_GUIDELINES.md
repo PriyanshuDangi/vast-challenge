@@ -99,7 +99,7 @@ For your team you already have:
 | **Source code repo** | Full VSS Blueprint (`vss-blueprint`) — pipeline functions, backend, frontend, deployments. Clone it if you want to dig in; open it in Cursor to **view / change / update / add** anything for your use case |
 
 ```bash
-git clone git@git.vastdata.com:vastde/vss-blueprint.git
+git clone https://github.com/vast-data/vss-blueprint.git
 ```
 
 Cloning or changing the Blueprint is **not a requirement**. The live UI, APIs, and Cursor skills in this repo are enough for a strong demo — search, filters, re-ingest, dashboards, mini-apps on top of the archive. Dig into the source only if you want custom pipeline/UI behavior.
