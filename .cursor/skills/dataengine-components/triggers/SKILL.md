@@ -93,7 +93,7 @@ Deploy via `dataengine-pipeline-manifest`.
 
 **Before any `vastde` command:** verify `vastde` is available (`vastde --version` / `command -v vastde`). If it's not installed or not on PATH, **stop and ask the user** for its location or to install/configure it — don't guess a path or skip the step.
 
-1. Confirm `vastde` config (empty-tenant login for SUPER_ADMIN; `--tenant` on ops).
+1. Confirm `vastde` config (team username/password/**tenant** in `~/.vast/config.toml`; `--tenant` on ops). Do not use empty-tenant SUPER_ADMIN login for hackathon teams.
 2. Discover broker + topic (don't assume); topic VRN: `vast:dataengine:topics:<broker>/<topic>`.
 3. Pass `--tenant` on create/list/get; preview with `--dry-run`.
 4. Keep exact trigger names so pipeline VRNs match.

@@ -65,7 +65,7 @@ manifest:                                # ingest only; enrichment omits this wr
 
 ## Deploy
 
-Every `pipelines` op needs `--tenant` (login uses empty tenant for SUPER_ADMIN). Use `--dry-run` to validate first.
+Every `pipelines` op needs `--tenant` (same tenant as in `~/.vast/config.toml` for team users). Use `--dry-run` to validate first.
 
 ```bash
 # Prefer the filled secret from this skills repo:

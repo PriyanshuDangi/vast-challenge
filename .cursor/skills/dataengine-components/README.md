@@ -15,9 +15,10 @@ Build and operate the VSS **ingest pipeline** on VAST DataEngine with the `vastd
 
 ## Golden rules (all vastde ops)
 
-- **Login:** cluster SUPER_ADMIN authenticates with an **empty tenant** in config (else `/api/token/<tenant>/` → 401).
-- **Operations:** pass `--tenant <name>` on every `triggers`/`functions`/`pipelines` command (else `400: No tenant was provided`).
+- **Login (hackathon teams):** put **your team username, password, and tenant** in `~/.vast/config.toml` (or `vastde config init` / `vastde config set`). Do **not** use empty-tenant / SUPER_ADMIN login — that is for cluster admins only and will fail for team users.
+- **Operations:** pass `--tenant <your-tenant>` on every `triggers`/`functions`/`pipelines` command (else `400: No tenant was provided`). Use the same tenant name as in the config / team config.
 - **Broker:** never hardcode — discover the broker (a View with `DATABASE`/`KAFKA` protocols).
+- If `vastde` isn't installed or auth fails, **ask the user** for the CLI / VMS URL / credentials — don't invent them.
 
 ## vss2 facts
 
