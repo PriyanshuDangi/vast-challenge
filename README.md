@@ -4,7 +4,7 @@ Cursor agent skills for the VSS2 video search stack — re-ingest indexed video 
 
 **Hackathon participants:** start with **[HACKATHON_GUIDELINES.md](HACKATHON_GUIDELINES.md)** (setup, UI walkthrough, starter videos, example prompts). UI screenshots are in [`docs/hackathon/`](docs/hackathon/).
 
-Open this repo in Cursor so agents discover skills under [`.cursor/skills/`](.cursor/skills/). Add your credentials file at `team-configs/<your-team>.config` (see [team-configs/README.md](team-configs/README.md)).
+Open this repo in Cursor so agents discover skills under [`.cursor/skills/`](.cursor/skills/). On the VM, runtime configuration is mounted at absolute `/config/`: `<team>.config`, `kubeconfig`, `vss-cli-secret.yaml`, and `backend-secret.yaml`. Keep credentials outside this repository.
 
 ## What’s in here
 

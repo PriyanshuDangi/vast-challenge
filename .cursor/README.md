@@ -13,10 +13,13 @@ Agent skills for working with the VSS2 video search stack. Each skill lives in i
 └── retrieval/              # Query and explore indexed video
 ```
 
-Shared config under `team-configs/`:
+Runtime configuration is mounted outside the repo at absolute `/config/`:
 
-- `gpu-endpoints.config` — GPU host / bearer / model URLs
-- `secrets/` — filled `vss-cli-secret.yaml` + `backend-secret.yaml` (see `team-configs/secrets/README.md`; ask user to place if missing)
+- `/config/<team>.config` — team credentials and GPU bearer
+- `/config/kubeconfig` — Kubernetes access
+- `/config/vss-cli-secret.yaml` and `/config/backend-secret.yaml` — ingest/backend secrets
+
+Skills must not search the repo's `team-configs/`.
 ## Ingest
 
 For this hackathon, **re-ingest** is the supported ingest path (no direct upload / stream / S3 put).
@@ -74,7 +77,7 @@ Retrieval-side Kubernetes apps (`deployments/vss-k8s-application/` in the bluepr
 
 ## GPU models
 
-Shared endpoints live in [`team-configs/gpu-endpoints.config`](../team-configs/gpu-endpoints.config). Full how-to: [gpu/README.md](skills/gpu/README.md).
+Shared endpoint addresses are documented in [gpu/README.md](skills/gpu/README.md); authentication comes from `/config/<team>.config`.
 
 | Skill | Summary |
 |-------|---------|

@@ -1,6 +1,12 @@
-# Secrets (team-local)
+# Legacy secret location
 
-Put the secret files you receive here so Cursor skills can read them. If a skill needs a secret and the file is missing, the agent will ask you to drop it in this folder.
+Cursor skills no longer read secrets from this repository directory.
+On the execution VM, put the provided files at:
+
+```text
+/config/vss-cli-secret.yaml
+/config/backend-secret.yaml
+```
 
 ## Expected files
 
@@ -15,10 +21,10 @@ Optional:
 |------|------------|
 | `vss-gui-secret.yaml` | DataEngine GUI-shaped secret (`vss2-secret`) |
 
-Save them under this directory with those exact names.
+Do not save real secrets under this repository directory.
 
 ## Rules
 
-- Keep real credentials **only** here — do not paste them into chat or commit them.
-- Model hosts/ports/token for GPU calls still come from [`../gpu-endpoints.config`](../gpu-endpoints.config); keep those in sync with both secrets.
+- Keep real credentials **only under `/config/`** — do not paste them into chat or commit them.
+- The GPU bearer token comes from `/config/<team>.config`; keep it in sync with both secrets.
 - VastDB **endpoint** differs by design: ingest `vdbendpoint` = data VIP (writes); backend `vdb_endpoint` = Query Engine VIP (reads). S3 / collection / embedding dims (256) must still match.

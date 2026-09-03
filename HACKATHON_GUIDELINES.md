@@ -2,11 +2,11 @@
 
 Ten teams. Ten isolated **VAST Video Search System (VSS)** stacks. One shared idea: use video understanding + search + metadata to build something useful.
 
-Each team gets its own pipeline, storage, UI, and credentials (`team-configs/<your-team>.config`). Your data stays in your namespace — you are not competing for someone else’s archive.
+Each team gets its own pipeline, storage, UI, and credentials (`/config/<your-team>.config` on the VM). Your data stays in your namespace — you are not competing for someone else’s archive.
 
 Each team gets a git repo with the **Cursor skills** for VSS.
 
-- Attach your team’s config file to this repo at `team-configs/<your-team>.config` (organizers will give you this file).
+- The VM provides `/config/<your-team>.config`, `/config/kubeconfig`, `/config/vss-cli-secret.yaml`, and `/config/backend-secret.yaml`. Keep them outside the repository.
 
 ---
 
@@ -21,7 +21,7 @@ Inference for the pipeline runs on shared **GPU endpoints** (NVIDIA Cosmos + YOL
 | **NVIDIA Cosmos Embed1** (`nvidia/cosmos-embed1`) | Text and visual embeddings (256-dim) for hybrid search | `http://166.19.38.112:8003` |
 | **NVIDIA Canary-1B** (`nvidia/canary-1b`) | Speech-to-text (ASR) + speech translation — **not** Cosmos; NeMo audio model | `http://166.19.38.112:8004` |
 
-Host: `166.19.38.112`. URLs: **[`team-configs/gpu-endpoints.config`](team-configs/gpu-endpoints.config)**. Bearer token is in your `team-configs/<team>.config` (`GPU_BEARER_TOKEN`) — Cursor copies it into `gpu-endpoints.config` when needed. Ask Cursor / see `.cursor/skills/gpu/` for how to call each model.
+Host: `166.19.38.112`. The bearer token is in `/config/<team>.config` (`GPU_BEARER_TOKEN`). Ask Cursor / see `.cursor/skills/gpu/` for how to call each model.
 
 Ingest and search call **Reason2**, **YOLO11**, and **Embed1** through your pipeline and backend today.
 
@@ -80,7 +80,7 @@ For your team you already have:
 | **Source code repo** | Full VSS Blueprint (`vss-blueprint`) — pipeline functions, backend, frontend, deployments. Clone it if you want to dig in; open it in Cursor to **view / change / update / add** anything for your use case |
 
 ```bash
-git clone https://github.com/vast-data/vss-blueprint.git
+cd /vss-blueprint
 ```
 
 Cloning or changing the Blueprint is **not a requirement**. The live UI, APIs, and Cursor skills in this repo are enough for a strong demo — search, filters, re-ingest, dashboards, mini-apps on top of the archive. Dig into the source only if you want custom pipeline/UI behavior.
@@ -92,7 +92,7 @@ Open the UI, log in with your team user, and open **this skills repo** in **Curs
 ## VSS UI
 
 1. Go to your **Ingress URL** (`INGRESS_URL` in your team config).
-2. **Log in** with your team’s username and password (`USERNAME` / `PASSWORD` in `team-configs/<your-team>.config`).
+2. **Log in** with your team’s username and password (`USERNAME` / `PASSWORD` in `/config/<your-team>.config`).
 
 ![VSS login](docs/hackathon/vss-login.png)
 
@@ -268,7 +268,7 @@ Write full prompts in Cursor: name what you want, point at your team config, and
 
 **1. Re-ingest and verify indexing**
 
-> Re-ingest an indexed video from Pack A (Vehicle & Pedestrian) or Pack C (Warehouse Safety) in my team environment (credentials in `team-configs/<my-team>.config`).  
+> Re-ingest an indexed video from Pack A (Vehicle & Pedestrian) or Pack C (Warehouse Safety) in my team environment (credentials in `/config/<my-team>.config`).
 > Let me pick the target (e.g. `bangkok_intersection2` or `forklift_2`), prompt/metadata behavior, and chunk count.  
 > Wait until re-ingest finishes, then run basic sanity checks on counts and pipeline health.  
 > *(Cursor will use skills: `ingest/reingest-videos`, `retrieval/dashboard`, `retrieval/login`)*
