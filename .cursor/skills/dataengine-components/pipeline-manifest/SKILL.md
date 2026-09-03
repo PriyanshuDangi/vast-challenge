@@ -13,6 +13,7 @@ Binds **triggers → functions** into a runnable graph and attaches the shared s
 
 **Requires:**
 - **`vastde` CLI** — configured (`~/.vast/config.toml`) + authenticated. If it's not installed or on PATH, stop and ask the user.
+- **VM config** — source the single `/config/*.config` team file; secret is `/config/vss-cli-secret.yaml`. Never search the repo's `team-configs/`.
 - **Triggers created** (`dataengine-triggers`), **functions registered** (`dataengine-functions`), **secret filled** (`dataengine-secret-manifest`).
 
 ## Manifests
@@ -65,50 +66,47 @@ manifest:                                # ingest only; enrichment omits this wr
 
 ## Deploy
 
-Every `pipelines` op needs `--tenant` (same tenant as in `~/.vast/config.toml` for team users). Use `--dry-run` to validate first.
+Pipeline commands use the tenant from `~/.vast/config.toml`. Use `--dry-run` to validate first.
 
 ```bash
-# Prefer the filled secret from this skills repo:
-#   team-configs/secrets/vss-cli-secret.yaml
-# If missing, ask the user to put it there (team-configs/secrets/README.md).
+# Filled secret is mounted on the VM at:
+#   /config/vss-cli-secret.yaml
+# If missing, ask the user to put it there.
 cd deployments/dataengine-vss-ingest-pipeline
 vastde pipelines create \
   --name video-realtime-processing-pipeline \
   --config @vss-ingest-pipeline-file.yaml \
-  --secret-file ../../../vss2-skills/team-configs/secrets/vss-cli-secret.yaml \
-  --tenant default \
+  --secret-file /config/vss-cli-secret.yaml \
   --deploy
 ```
 
-(Adjust the `--secret-file` path to your checkout; from this skills repo root use `team-configs/secrets/vss-cli-secret.yaml`.)
-
-Before deploying fill: `kubernetes_cluster_vrn`, `namespace`, every `topic:` VRN, and confirm `secrets: [vss2-secret]`. If the secret file is missing under `team-configs/secrets/`, stop and ask the user to add it.
+Before deploying fill: `kubernetes_cluster_vrn`, `namespace`, every `topic:` VRN, and confirm `secrets: [vss2-secret]`. If `/config/vss-cli-secret.yaml` is missing, stop and ask the user to add it.
 
 ## Verify / update
 
 ```bash
-vastde pipelines list --tenant default
-vastde pipelines get video-realtime-processing-pipeline --tenant default -o json
+vastde pipelines list
+vastde pipelines get video-realtime-processing-pipeline -o json
 
-vastde pipelines update video-realtime-processing-pipeline --config @vss-ingest-pipeline-file.yaml --tenant default
-vastde pipelines deploy video-realtime-processing-pipeline --tenant default
+vastde pipelines update video-realtime-processing-pipeline --config @vss-ingest-pipeline-file.yaml
+vastde pipelines deploy video-realtime-processing-pipeline
 ```
 
 Then upload a test `.mp4` to `vss-chunks` and confirm executions through segmenter → detector → reasoner → embedder → writer.
 
 ## Agent instructions
 
-**Before any `vastde` command:** verify `vastde` is available (`vastde --version` / `command -v vastde`). If it's not installed or not on PATH, **stop and ask the user** for its location or to install/configure it — don't guess a path or skip the step. Pass `--tenant` on every `pipelines` op and validate with `--dry-run` first.
+**Before any `vastde` command:** verify `vastde` is available (`vastde --version` / `command -v vastde`). If it's not installed or not on PATH, **stop and ask the user** for its location or to install/configure it — don't guess a path or skip the step. Confirm the tenant with `vastde config view` and validate with `--dry-run` first.
 
-1. Confirm `team-configs/secrets/vss-cli-secret.yaml` exists; if not, ask the user to add it (`team-configs/secrets/README.md`).
+1. Confirm `/config/vss-cli-secret.yaml` exists; if not, ask the user to add it. Do not search the repo's `team-configs/`.
 2. Use `--secret-file` pointing at that path (not the empty Blueprint template).
 3. Keep `manifest.config.secrets: [vss2-secret]`.
 
 ## Editing checklist
 
-1. Prereqs exist (triggers, functions, secret under `team-configs/secrets/`).
+1. Prereqs exist (triggers, functions, secret at `/config/vss-cli-secret.yaml`).
 2. Add/adjust the `function_deployments` entry (resources, timeout, revision).
 3. Wire `links` (instance names; topic only on trigger links).
 4. Add the `triggers` entry if new.
 5. Keep the secret name `vss2-secret`.
-6. Redeploy with `--tenant … --deploy`.
+6. Redeploy using the tenant already configured in `vastde`.

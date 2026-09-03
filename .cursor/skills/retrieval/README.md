@@ -3,6 +3,8 @@
 Query the indexed VSS archive through the **backend API** (`source-code/retrieval/video-backend`). Every route below `/api/v1` (except `/metadata/ingest-config`) needs a JWT — start with `login`.
 
 Base URL: `http://<backend-host>` → API prefix `/api/v1`.
+Resolve `INGRESS_URL`, `USERNAME`, and `PASSWORD` from the single
+`/config/*.config` team file. Never search the repository's `team-configs/`.
 
 ## Skills → routes
 

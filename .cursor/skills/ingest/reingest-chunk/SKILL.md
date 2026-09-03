@@ -25,7 +25,16 @@ ask how many chunks.
 
 ## Authenticate
 
-Use the team config for the selected team. Ask which team if it is not obvious.
+Use the single `/config/*.config` team file. Do not search the repo's
+`team-configs/`. If it is missing or multiple files match, ask the user.
+
+```bash
+mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | sort)
+(( ${#TEAM_CONFIGS[@]} == 1 )) || { echo "expected exactly one /config/*.config"; exit 1; }
+TEAM_CONFIG="${TEAM_CONFIGS[0]}"
+set -a && source "$TEAM_CONFIG" && set +a
+BACKEND="$INGRESS_URL"
+```
 
 From that config take:
 

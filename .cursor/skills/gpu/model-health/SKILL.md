@@ -3,17 +3,23 @@ name: gpu-model-health
 description: >-
   Check liveness/readiness of VSS GPU models using the paths that each NIM actually
   exposes (Reason2/Embed1: /v1/models + /v1/health/*; YOLO: /healthz; Canary:
-  /v1/health/ready|live only). Config: team-configs/gpu-endpoints.config.
+  /v1/health/ready|live only). Auth config: /config/<team>.config.
 ---
 
 # GPU: model health (vss2)
 
-Config (required): [`team-configs/gpu-endpoints.config`](../../../../team-configs/gpu-endpoints.config)
-
-If `GPU_BEARER_TOKEN` is `<fill_me>`/empty → copy from `team-configs/<team>.config`; if still missing → ask the user. Do not invent the token.
+Config (required): the single `/config/*.config` team file. If missing or its `GPU_BEARER_TOKEN` is empty, ask the user to fix it. Never search the repo's `team-configs/`.
 
 ```bash
-set -a && source team-configs/gpu-endpoints.config && set +a
+mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | sort)
+(( ${#TEAM_CONFIGS[@]} == 1 )) || { echo "expected exactly one /config/*.config"; exit 1; }
+TEAM_CONFIG="${TEAM_CONFIGS[0]}"
+set -a && source "$TEAM_CONFIG" && set +a
+GPU_HOST=166.19.38.112
+COSMOS_REASON2_URL=http://${GPU_HOST}:8001
+YOLO_URL=http://${GPU_HOST}:8002
+COSMOS_EMBED1_URL=http://${GPU_HOST}:8003
+CANARY_1B_URL=http://${GPU_HOST}:8004
 AUTH=(-H "Authorization: Bearer ${GPU_BEARER_TOKEN}")
 ```
 
@@ -78,7 +84,7 @@ If health passes but pipeline still fails → [model-smoke-test](../model-smoke-
 
 ## Agent instructions
 
-1. Resolve bearer (`gpu-endpoints.config` ← `team-configs/<team>.config` if needed; else ask user). Source `gpu-endpoints.config`; always send the bearer token.
+1. Source the single `/config/*.config` team file and always send its bearer token; ask the user if missing. Never copy credentials into the repo.
 2. Use **only** the supported paths per model from the matrix — never require `/v1/models` on YOLO or Canary.
 3. Report per model: which checks ran, HTTP codes, and pass/fail by the rules above.
 4. Never invent hosts/ports; never print the bearer token.

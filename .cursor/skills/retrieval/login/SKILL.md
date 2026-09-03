@@ -15,12 +15,19 @@ The backend authenticates the user against VMS and returns a JWT. VMS host + ten
 `POST /api/v1/auth/login`, body `{ "username", "password" }` → `{ access_token, token_type: "bearer", username }`.
 
 ```bash
-BACKEND=http://<backend-host>
+mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | sort)
+(( ${#TEAM_CONFIGS[@]} == 1 )) || { echo "expected exactly one /config/*.config"; exit 1; }
+TEAM_CONFIG="${TEAM_CONFIGS[0]}"
+set -a && source "$TEAM_CONFIG" && set +a
+BACKEND="$INGRESS_URL"
 TOKEN=$(curl -s -X POST "$BACKEND/api/v1/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"username":"<user>","password":"<pass>"}' \
+  -d "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\"}" \
   | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
 ```
+
+Only read team credentials from `/config/<team>.config`; never search the repo's
+`team-configs/`, echo credentials, or copy them into the repo.
 
 401 = bad credentials (or user not valid for the tenant configured in the backend).
 

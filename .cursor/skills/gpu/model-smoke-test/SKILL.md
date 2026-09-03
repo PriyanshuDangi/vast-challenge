@@ -2,18 +2,24 @@
 name: gpu-model-smoke-test
 description: >-
   Minimal real inference against Reason2, YOLO11, Embed1 (256-dim), and optional Canary-1B
-  using team-configs/gpu-endpoints.config. Use when health is green but reasoning,
+  using /config/<team>.config for auth. Use when health is green but reasoning,
   embeddings, detections, or ASR demos still fail.
 ---
 
 # GPU: model smoke test (vss2)
 
-Config (required): [`team-configs/gpu-endpoints.config`](../../../../team-configs/gpu-endpoints.config)
-
-If `GPU_BEARER_TOKEN` is `<fill_me>`/empty → copy from `team-configs/<team>.config`; if still missing → ask the user. Do not invent the token.
+Config (required): the single `/config/*.config` team file. If missing or its `GPU_BEARER_TOKEN` is empty, ask the user to fix it. Never search the repo's `team-configs/`.
 
 ```bash
-set -a && source team-configs/gpu-endpoints.config && set +a
+mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | sort)
+(( ${#TEAM_CONFIGS[@]} == 1 )) || { echo "expected exactly one /config/*.config"; exit 1; }
+TEAM_CONFIG="${TEAM_CONFIGS[0]}"
+set -a && source "$TEAM_CONFIG" && set +a
+GPU_HOST=166.19.38.112
+COSMOS_REASON2_URL=http://${GPU_HOST}:8001
+YOLO_URL=http://${GPU_HOST}:8002
+COSMOS_EMBED1_URL=http://${GPU_HOST}:8003
+CANARY_1B_URL=http://${GPU_HOST}:8004
 AUTH=(-H "Authorization: Bearer ${GPU_BEARER_TOKEN}")
 ```
 
@@ -81,7 +87,7 @@ curl -s -X POST "${CANARY_1B_URL}/v1/audio/transcriptions" \
 
 ## Agent instructions
 
-1. Resolve bearer (`gpu-endpoints.config` ← `team-configs/<team>.config` if needed; else ask user). Source `gpu-endpoints.config`; use `$AUTH`.
+1. Source the single `/config/*.config` team file; if missing or bearer is empty, ask the user. Never search `team-configs/` or copy credentials into the repo.
 2. Run health with the **per-model** paths in `gpu-model-health` before smoke tests.
 3. Assert Embed1 dim == 256.
 4. For Canary, never require `/v1/models`; do not claim it is part of default ingest.

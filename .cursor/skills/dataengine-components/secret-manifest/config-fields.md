@@ -1,11 +1,11 @@
 # VSS ingest secret — all keys
 
-Filled file for Cursor: [`team-configs/secrets/vss-cli-secret.yaml`](../../../team-configs/secrets/vss-cli-secret.yaml) (ask the user to place it there if missing). Blueprint templates under `deployments/dataengine-vss-ingest-pipeline/`. Secret **name:** `vss2-secret`.
+Filled file for Cursor: `/config/vss-cli-secret.yaml` (ask the user to place it there if missing). Blueprint templates are under `deployments/dataengine-vss-ingest-pipeline/`. Secret **name:** `vss2-secret`.
 
 ## Sourcing values
 
-- **Filled secret YAML** — read/write `team-configs/secrets/vss-cli-secret.yaml` first; never invent credentials.
-- **Model endpoints** (`cosmos_*`, `embedding*`/`embeddinghost`, `yolo_infer_*`, schemes, ports, auth tokens, `embeddingdimensions`) — from [`team-configs/gpu-endpoints.config`](../../../team-configs/gpu-endpoints.config). Ports: Reason2 **8001**, YOLO **8002**, Embed1 **8003**.
+- **Filled secret YAML** — read/write `/config/vss-cli-secret.yaml` first; never look under the repo's `team-configs/` or invent credentials.
+- **Model endpoints** — shared host `166.19.38.112`; ports Reason2 **8001**, YOLO **8002**, Embed1 **8003**; bearer token from `/config/<team>.config`.
 - **Anything you don't know** (S3/VastDB endpoints + keys, credentials, bucket/schema/collection names if non-default) — **ask the user**. Do not guess credentials, endpoints, or hosts.
 - Defaults shown below are safe fallbacks only for non-secret, non-endpoint fields (timeouts, durations, dims already fixed at 256).
 

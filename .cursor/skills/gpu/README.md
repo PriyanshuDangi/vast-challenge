@@ -2,25 +2,29 @@
 name: gpu-models
 description: >-
   Explain and call the shared VSS GPU models (Cosmos Reason2, YOLO11, Cosmos Embed1,
-  Canary-1B). Load host/token/URLs from team-configs/gpu-endpoints.config. Use for
+  Canary-1B). Load the GPU bearer token from /config/<team>.config. Use for
   health checks, smoke tests, wiring Canary into a custom demo, or debugging empty
   reasoning / embeddings / detections.
 ---
 
 # GPU models (vss2)
 
-Shared inference endpoints for the hackathon. **Always** load config from:
-
-**[`team-configs/gpu-endpoints.config`](../../../team-configs/gpu-endpoints.config)**
-
-**Bearer token:** if `GPU_BEARER_TOKEN` is empty or `<fill_me>`, copy it from `team-configs/<team>.config` (organizer file; key `GPU_BEARER_TOKEN`) into `gpu-endpoints.config`, then source. If neither file has a real token, ask the user once — do not invent one.
+Shared inference endpoints for the hackathon. **Always** load the team config from the VM's absolute `/config/` directory. Do not search this repository's `team-configs/`.
 
 ```bash
-set -a && source team-configs/gpu-endpoints.config && set +a
+mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | sort)
+(( ${#TEAM_CONFIGS[@]} == 1 )) || { echo "expected exactly one /config/*.config"; exit 1; }
+TEAM_CONFIG="${TEAM_CONFIGS[0]}"
+set -a && source "$TEAM_CONFIG" && set +a
+GPU_HOST=166.19.38.112
+COSMOS_REASON2_URL=http://${GPU_HOST}:8001
+YOLO_URL=http://${GPU_HOST}:8002
+COSMOS_EMBED1_URL=http://${GPU_HOST}:8003
+CANARY_1B_URL=http://${GPU_HOST}:8004
 AUTH=(-H "Authorization: Bearer ${GPU_BEARER_TOKEN}")
 ```
 
-Do not hardcode hosts or tokens in commands you invent. Do not print the bearer token in logs.
+If `/config/<team>.config` is missing or has no real `GPU_BEARER_TOKEN`, ask the user to put/fix it there. Do not invent or print the token.
 
 ## Quick map
 
@@ -145,8 +149,8 @@ Wire results into your demo (metadata, UI, new function). Ask Cursor; use Bluepr
 
 ## Agent instructions
 
-1. Resolve `GPU_BEARER_TOKEN`: if `gpu-endpoints.config` still has `<fill_me>`/empty → copy from `team-configs/<team>.config`; if still missing → ask the user. Then write it into `gpu-endpoints.config`.
-2. **Always** `source team-configs/gpu-endpoints.config` before curling.
+1. Find the single `/config/*.config` team file; if missing or ambiguous, ask the user. Never search the repo's `team-configs/`.
+2. Source it and require a non-empty, non-placeholder `GPU_BEARER_TOKEN`; never copy it into the repository.
 3. Always send `Authorization: Bearer $GPU_BEARER_TOKEN`.
 4. For pipeline debugging: Reason2 / YOLO / Embed1 first (`gpu-model-health`, then `gpu-model-smoke-test`).
 5. For Canary: explain it is optional ASR; probe the endpoint; help the user design a custom flow — never claim it runs in default ingest.

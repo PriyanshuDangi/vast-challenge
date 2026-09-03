@@ -18,6 +18,7 @@ Two sides, keep in sync:
 
 **Requires:**
 - **`vastde` CLI** — configured (`~/.vast/config.toml`) + authenticated. If it's not installed or on PATH, stop and ask the user.
+- **Team config** — source the single `/config/*.config` file when configuring `vastde`; never search the repo's `team-configs/`.
 - **Image built + pushed** (`dataengine-build-function`) and **function code** authored (`dataengine-edit-function`).
 
 ## Function VRNs
@@ -26,7 +27,7 @@ Two sides, keep in sync:
 
 ## Register (create)
 
-`--container-registry` = registry **name** in DataEngine (`vastde container-registries list`), not the URL. `--artifact-source` = image path without tag. Every op needs `--tenant`.
+`--container-registry` = registry **name** in DataEngine (`vastde container-registries list`), not the URL. `--artifact-source` = image path without tag. Tenant comes from `~/.vast/config.toml`.
 
 ```bash
 vastde functions create \
@@ -34,8 +35,7 @@ vastde functions create \
   --container-registry <registry-name> \
   --artifact-source YOUR_ORG/vss-video-detector \
   --artifact-type image \
-  --image-tag v2 \
-  --tenant default
+  --image-tag v2
 ```
 
 Repeat per function (`vss-video-segmenter`, `vss-video-detector`, `vss-video-reasoner`, `vss-video-embedder`, `vss-video-vastdb`).
@@ -43,8 +43,8 @@ Repeat per function (`vss-video-segmenter`, `vss-video-detector`, `vss-video-rea
 ## Verify
 
 ```bash
-vastde functions list --tenant default
-vastde functions get video-detector --tenant default -o json
+vastde functions list
+vastde functions get video-detector -o json
 ```
 
 ## Edit (CLI)
@@ -55,8 +55,7 @@ New image build → publish a new revision (rebuild + push a fresh tag first):
 vastde functions update video-detector \
   --image-tag v3 \
   --revision-description "Describe change" \
-  --publish \
-  --tenant default
+  --publish
 ```
 
 - Each `--publish` = a new **revision**; if the manifest pins `revision:`, bump it and redeploy.
@@ -100,7 +99,7 @@ Rules: `function_vrn` = registered function; `name` = instance (what `links` ref
 
 1. Code (`dataengine-edit-function`) → add dir to `source-code/scripts/build-vastde-functions.sh`.
 2. Build + push (`dataengine-build-function`).
-3. `vastde functions create … --tenant default`.
+3. `vastde functions create …` (tenant comes from the configured team login).
 4. Add a `function_deployments` entry (VRN, unique instance `name`, resources).
 5. Wire `links` (insert between neighbors; `topic:` only on trigger links).
 6. Redeploy (`dataengine-pipeline-manifest`).
@@ -109,7 +108,7 @@ Rules: `function_vrn` = registered function; `name` = instance (what `links` ref
 
 **Before any `vastde` command:** verify `vastde` is available (`vastde --version` / `command -v vastde`). If it's not installed or not on PATH, **stop and ask the user** for its location or to install/configure it — don't guess a path or skip the step.
 
-1. Pass `--tenant` on every `functions` op; images pushed before create.
+1. Confirm the team tenant in `vastde config view`; images must be pushed before create.
 2. Keep in sync: function name (CLI) ↔ `function_vrn` ↔ instance `name` in `links`.
 3. Decide if an edit is CLI-only (new revision), manifest-only (resources/wiring), or both — then redeploy the pipeline.
 4. After schema-affecting changes (e.g. embedding dims), recreate the VastDB collection.

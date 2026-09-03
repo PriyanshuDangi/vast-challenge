@@ -11,21 +11,26 @@ import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
-def _repo_root() -> Path:
-    for parent in Path(__file__).resolve().parents:
-        if (parent / ".env.example").exists():
-            return parent
-    return Path(__file__).resolve().parents[4]
+
+def _team_config() -> Path:
+    configs = sorted(Path("/config").glob("*.config"))
+    if len(configs) != 1:
+        print(
+            f"Expected exactly one /config/*.config team file; found {len(configs)}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return configs[0]
 
 
-ENV_PATH = Path(os.environ.get("VAST_ENV_FILE", _repo_root() / ".env"))
+ENV_PATH = Path(os.environ.get("VAST_ENV_FILE", _team_config()))
 
 INTERNAL_TABLES = frozenset({"tabular_schema_table"})
 
 
 def load_env(path: Path) -> dict[str, str]:
     if not path.is_file():
-        print(f"Missing {path}. Copy .env.example to .env and fill credentials/endpoints.", file=sys.stderr)
+        print(f"Missing team config: {path}", file=sys.stderr)
         sys.exit(1)
 
     env: dict[str, str] = {}
@@ -49,7 +54,7 @@ def resolve_endpoint(env: dict[str, str]) -> str:
         or env.get("S3_ENDPOINT", "")
     )
     if not endpoint:
-        print("Fill in .env: VDB_ENDPOINT (or S3_ENDPOINT)", file=sys.stderr)
+        print("Set VDB_ENDPOINT or S3_ENDPOINT in /config/<team>.config", file=sys.stderr)
         sys.exit(1)
     return normalize_endpoint(endpoint)
 
@@ -159,10 +164,13 @@ def main() -> None:
     args = parser.parse_args()
 
     env = load_env(ENV_PATH)
-    access = env.get("VAST_ACCESS_KEY", "")
-    secret = env.get("VAST_SECRET_KEY", "")
+    access = env.get("VAST_ACCESS_KEY") or env.get("ACCESS_KEY", "")
+    secret = env.get("VAST_SECRET_KEY") or env.get("SECRET_KEY", "")
     if not access or not secret:
-        print("Fill in .env: VAST_ACCESS_KEY, VAST_SECRET_KEY", file=sys.stderr)
+        print(
+            "Set ACCESS_KEY/SECRET_KEY in /config/<team>.config",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     endpoint = resolve_endpoint(env)

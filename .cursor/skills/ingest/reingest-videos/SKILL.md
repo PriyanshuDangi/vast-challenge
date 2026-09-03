@@ -28,8 +28,19 @@ Use `AskQuestion` for choices. Never guess missing choices.
 
 ## Authenticate
 
-Resolve the backend URL and credentials from the selected team's config, or ask
-which team/namespace to use. Authenticate with:
+Resolve the backend URL and credentials from the single `/config/*.config` team
+file. Do not search the repo's `team-configs/`. If the file is missing or there
+are multiple candidates, ask the user. Load it with:
+
+```bash
+mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | sort)
+(( ${#TEAM_CONFIGS[@]} == 1 )) || { echo "expected exactly one /config/*.config"; exit 1; }
+TEAM_CONFIG="${TEAM_CONFIGS[0]}"
+set -a && source "$TEAM_CONFIG" && set +a
+BACKEND="$INGRESS_URL"
+```
+
+Authenticate with:
 
 ```bash
 TOKEN=$(curl -s -X POST "$BACKEND/api/v1/auth/login" \

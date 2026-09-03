@@ -13,6 +13,7 @@ Confirms pods are running and the backend is wired correctly. Read-only.
 ## Pods / rollout
 
 ```bash
+export KUBECONFIG=/config/kubeconfig
 kubectl get pods -n <namespace>
 kubectl get all -n <namespace>
 kubectl describe pod -n <namespace> -l app=video-backend      # events on CrashLoop/ImagePull
@@ -29,7 +30,7 @@ curl -s localhost:8000/health          # backend liveness/readiness
 curl -s localhost:8000/                 # root
 ```
 
-Via ingress: `curl -s http://video-lab.<cluster>.vastdata.com/api/v1/...` (needs `/etc/hosts`).
+Via ingress: `curl -s http://video-lab.<cluster>.vastdata.com/api/v1/...`.
 
 ## Effective backend config — `GET /api/v1/config`
 
@@ -39,7 +40,7 @@ Confirms what the backend actually loaded from the mounted secret (JWT required 
 curl -s "http://video-lab.<cluster>.vastdata.com/api/v1/config" -H "Authorization: Bearer $TOKEN"
 ```
 
-Check S3 endpoint, `vdb_collection: vss-collection`, embedding host + `256` dims, Cosmos host — must match ingest. Prefer comparing to [`team-configs/secrets/vss-cli-secret.yaml`](../../../team-configs/secrets/vss-cli-secret.yaml) and [`team-configs/secrets/backend-secret.yaml`](../../../team-configs/secrets/backend-secret.yaml); if either is missing and you need the cross-check, ask the user to place it under `team-configs/secrets/` (see README there). Note the VastDB endpoint is expected to **differ**: backend `vdb_endpoint` = Query Engine VIP (reads), ingest `vdbendpoint` = regular data VIP (writes).
+Check S3 endpoint, `vdb_collection: vss-collection`, embedding host + `256` dims, Cosmos host — must match ingest. Compare `/config/vss-cli-secret.yaml` and `/config/backend-secret.yaml`; if either is missing and needed, ask the user to place it under `/config/`. Do not search the repo's `team-configs/`. Note the VastDB endpoint is expected to **differ**: backend `vdb_endpoint` = Query Engine VIP (reads), ingest `vdbendpoint` = regular data VIP (writes).
 
 ## Common failures
 
@@ -49,10 +50,10 @@ Check S3 endpoint, `vdb_collection: vss-collection`, embedding host + `256` dims
 | `ImagePullBackOff` | wrong image tag/registry in deployment YAML |
 | Login 401 | `vast_host`/`tenant_name` wrong in secret |
 | Search returns nothing | embedding host/dims or VastDB endpoint mismatch vs ingest (see `/api/v1/config` + `retrieval/dashboard`) |
-| Ingress unreachable | ingress IP pending / missing `/etc/hosts` |
+| Ingress unreachable | ingress IP pending / DNS or ingress issue |
 
 ## Agent instructions
 
-1. `kubectl get pods` first; `describe`/`logs` any non-Running pod.
+1. Set `KUBECONFIG=/config/kubeconfig`; if missing, ask the user to put it there. Run `kubectl get pods` first; `describe`/`logs` any non-Running pod.
 2. Hit `/health`; then `GET /api/v1/config` to confirm wiring.
-3. Cross-check `/api/v1/config` against `team-configs/secrets/*` when present; for deeper debugging read pod logs (`kubectl logs -l app=<app> -n <ns>`).
+3. Cross-check `/api/v1/config` against `/config/vss-cli-secret.yaml` and `/config/backend-secret.yaml` when present; for deeper debugging read pod logs.

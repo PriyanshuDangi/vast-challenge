@@ -13,6 +13,7 @@ Turns function source dirs into images in your registry. After this, register th
 
 **Requires:**
 - **`vastde` CLI** — configured (`~/.vast/config.toml`) and authenticated; `vastde build` / `vastde functions build` do the image build. If it's not installed/available, ask the user.
+- **Team config** — the single `/config/*.config` file on the VM. Use it when configuring `vastde`; never search the repo's `team-configs/`.
 - **Builder image** — `builder_image_url` from `~/.vast/config.toml` must be present locally (`docker images`); `vastde build` won't run without it.
 - **Docker** — for `docker tag` / `docker push` to your registry.
 
@@ -65,4 +66,4 @@ For HTTP registries, add the host to Docker `insecure-registries` before push.
 
 ## Next
 
-Register/refresh the function with `dataengine-functions` (`vastde functions create/update … --tenant`), then wire it in `dataengine-pipeline-manifest`.
+Register/refresh the function with `dataengine-functions` (`vastde functions create/update …`; tenant comes from the CLI config), then wire it in `dataengine-pipeline-manifest`.

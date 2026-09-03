@@ -13,6 +13,7 @@ Triggers are created with `vastde` and then referenced by name in the pipeline m
 
 **Requires:**
 - **`vastde` CLI** — configured (`~/.vast/config.toml`) + authenticated. If it's not installed or on PATH, stop and ask the user.
+- **Team config** — source the single `/config/*.config` file when configuring `vastde`; never search the repo's `team-configs/`.
 - **Event broker + topic** — discovered, not assumed (broker = a View with `DATABASE`/`KAFKA` protocols; list topics with `vastde topics list --database-name <broker>`).
 
 ## VSS trigger set
@@ -29,7 +30,7 @@ VRNs used by the manifest: `vast:dataengine:triggers:<trigger-name>`.
 
 ## Create — Element (S3)
 
-`--broker-name`/`--topic` are **cluster-specific — discover, don't assume** (broker = View with `DATABASE`/`KAFKA`). Every op needs `--tenant`. Preview with `--dry-run`.
+`--broker-name`/`--topic` are **cluster-specific — discover, don't assume** (broker = View with `DATABASE`/`KAFKA`). Tenant comes from `~/.vast/config.toml`. Preview with `--dry-run`.
 
 ```bash
 vastde triggers create \
@@ -39,8 +40,7 @@ vastde triggers create \
   --events "ObjectCreated:*" \
   --broker-type Internal \
   --broker-name <broker-name> \
-  --topic <topic> \
-  --tenant default
+  --topic <topic>
 
 vastde triggers create \
   --name video-segment-land-trigger \
@@ -49,8 +49,7 @@ vastde triggers create \
   --events "ObjectCreated:*" \
   --broker-type Internal \
   --broker-name <broker-name> \
-  --topic <topic> \
-  --tenant default
+  --topic <topic>
 ```
 
 ## Create — Scheduled (enrichment)
@@ -59,8 +58,7 @@ vastde triggers create \
 vastde triggers create \
   --name vss-prompt-suggester-scheduled-trigger \
   --type Schedule \
-  --schedule "*/15 * * * *" \
-  --tenant default
+  --schedule "*/15 * * * *"
 ```
 
 (Schedule can also be set in the DataEngine UI trigger config. Used by the enrichment pipeline.)
@@ -68,8 +66,8 @@ vastde triggers create \
 ## Verify / edit
 
 ```bash
-vastde triggers list --tenant default
-vastde triggers get video-chunk-land-trigger --tenant default -o json
+vastde triggers list
+vastde triggers get video-chunk-land-trigger -o json
 ```
 
 To edit, recreate with the same name or adjust in the DataEngine UI; keep the exact names so the pipeline manifest VRNs still match.
@@ -93,7 +91,7 @@ Deploy via `dataengine-pipeline-manifest`.
 
 **Before any `vastde` command:** verify `vastde` is available (`vastde --version` / `command -v vastde`). If it's not installed or not on PATH, **stop and ask the user** for its location or to install/configure it — don't guess a path or skip the step.
 
-1. Confirm `vastde` config (team username/password/**tenant** in `~/.vast/config.toml`; `--tenant` on ops). Do not use empty-tenant SUPER_ADMIN login for hackathon teams.
+1. Confirm `vastde` config (team username/password/**tenant** in `~/.vast/config.toml`). Do not use empty-tenant SUPER_ADMIN login for hackathon teams.
 2. Discover broker + topic (don't assume); topic VRN: `vast:dataengine:topics:<broker>/<topic>`.
-3. Pass `--tenant` on create/list/get; preview with `--dry-run`.
+3. Use the tenant shown by `vastde config view`; preview changes with `--dry-run`.
 4. Keep exact trigger names so pipeline VRNs match.

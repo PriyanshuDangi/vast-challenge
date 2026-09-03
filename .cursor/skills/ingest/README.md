@@ -15,3 +15,5 @@ re-runs complete chunks through detector → reasoner → embedder → writer. W
 replacement is atomic per segment slot.
 
 Auth is a backend JWT from `POST /api/v1/auth/login`.
+Team URL and credentials come only from the single `/config/*.config` file on
+the VM. Skills must not search the repository's `team-configs/`.

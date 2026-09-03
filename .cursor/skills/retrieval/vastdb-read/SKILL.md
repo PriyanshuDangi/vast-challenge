@@ -29,13 +29,16 @@ ssh -N -f -L 18080:<vastdb-vip>:80 <user>@<jump-host>
 # e.g. ssh -N -f -L 18080:172.27.121.1:80 vastdata@v151lg1
 ```
 
-2. **`.env`** at the repo root (copy `.env.example`):
+2. The single `/config/*.config` team file:
 
 ```
-VDB_ENDPOINT=http://127.0.0.1:18080     # or S3_ENDPOINT
-VAST_ACCESS_KEY=...
-VAST_SECRET_KEY=...
+S3_ENDPOINT=...     # used as the VastDB data endpoint unless VDB_ENDPOINT is set
+ACCESS_KEY=...
+SECRET_KEY=...
+VASTDB_BUCKET=...
 ```
+
+Never search the repo's `team-configs/` or create a repo-local `.env`.
 
 3. `pip install vastdb pyarrow pandas`.
 
@@ -72,7 +75,7 @@ with session.transaction() as tx:
 
 ## Agent instructions
 
-1. Start the SSH tunnel and verify `.env` before connecting; run `list_catalog.py` first.
-2. Never commit `.env`.
+1. Start the SSH tunnel if needed and verify the single `/config/*.config` team file before connecting; run `list_catalog.py` first.
+2. Never copy `/config/` credentials into the repo.
 3. Exclude vector columns unless you specifically need them.
 4. This bypasses backend ACLs — for user-scoped views use `retrieval/dashboard` / `retrieval/videos` instead.
