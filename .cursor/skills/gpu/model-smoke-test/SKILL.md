@@ -1,7 +1,7 @@
 ---
 name: gpu-model-smoke-test
 description: >-
-  Minimal real inference against Reason2, YOLO11, Embed1 (256-dim), and optional Canary-1B
+  Minimal real inference against Cosmos3-Reason, YOLO11, Embed1 (256-dim), and optional Canary-1B
   using /config/<team>.config for auth. Use when health is green but reasoning,
   embeddings, detections, or ASR demos still fail.
 ---
@@ -16,7 +16,7 @@ mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | 
 TEAM_CONFIG="${TEAM_CONFIGS[0]}"
 set -a && source "$TEAM_CONFIG" && set +a
 GPU_HOST=166.19.38.112
-COSMOS_REASON2_URL=http://${GPU_HOST}:8001
+COSMOS3_REASON_URL=http://${GPU_HOST}:8001
 YOLO_URL=http://${GPU_HOST}:8002
 COSMOS_EMBED1_URL=http://${GPU_HOST}:8003
 CANARY_1B_URL=http://${GPU_HOST}:8004
@@ -25,13 +25,17 @@ AUTH=(-H "Authorization: Bearer ${GPU_BEARER_TOKEN}")
 
 See also the full model guide: [gpu/README.md](../README.md).
 
-## Reason2 — chat/completions
+## Cosmos3-Reason — chat/completions
 
 ```bash
-curl -s -X POST "${COSMOS_REASON2_URL}/v1/chat/completions" \
+COSMOS3_REASON_MODEL=$(
+  curl -fsS "${AUTH[@]}" "$COSMOS3_REASON_URL/v1/models" |
+    python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['id'])"
+)
+curl -s -X POST "${COSMOS3_REASON_URL}/v1/chat/completions" \
   "${AUTH[@]}" -H "Content-Type: application/json" \
   -d "{
-    \"model\": \"${COSMOS_REASON2_MODEL}\",
+    \"model\": \"${COSMOS3_REASON_MODEL}\",
     \"messages\": [{\"role\":\"user\",\"content\":\"Reply with the single word: OK\"}],
     \"max_tokens\": 16, \"temperature\": 0
   }"
@@ -54,6 +58,10 @@ curl -s -X POST "${YOLO_URL}/v1/infer" \
 ## Embed1 — embeddings (must be 256-dim)
 
 ```bash
+COSMOS_EMBED1_MODEL=$(
+  curl -fsS "${AUTH[@]}" "$COSMOS_EMBED1_URL/v1/models" |
+    python3 -c "import sys,json; print(json.load(sys.stdin)['data'][0]['id'])"
+)
 curl -s -X POST "${COSMOS_EMBED1_URL}/v1/embeddings" \
   "${AUTH[@]}" -H "Content-Type: application/json" \
   -d "{\"input\":\"a person walking\",\"model\":\"${COSMOS_EMBED1_MODEL}\",\"request_type\":\"query\",\"encoding_format\":\"float\"}" \
@@ -71,14 +79,14 @@ curl -s "${AUTH[@]}" "$CANARY_1B_URL/v1/health/ready"
 curl -s -X POST "${CANARY_1B_URL}/v1/audio/transcriptions" \
   "${AUTH[@]}" \
   -F "file=@clip_audio.wav" \
-  -F "model=${CANARY_1B_MODEL}"
+  -F "model=nvidia/canary-1b"
 ```
 
 ## Failures
 
 | Symptom | Likely cause |
 |---------|--------------|
-| Reason2 empty `content` | overloaded / rejected prompt |
+| Cosmos3-Reason empty `content` | overloaded / rejected prompt |
 | Embed1 dim ≠ 256 | wrong model → breaks search / VastDB |
 | YOLO `/healthz` not ok | model not loaded / GPU issue |
 | YOLO 404 on `/v1/infer` | wrong URL |

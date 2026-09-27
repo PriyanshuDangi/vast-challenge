@@ -39,13 +39,13 @@ When applying from the Blueprint tree, you may copy/symlink a filled secret to `
 | VastDB | `vdb_endpoint`, `vdb_access_key`, `vdb_secret_key` | buckets already `vss-db`/`vss-schema`/`vss-collection`/`vss-prompts-events` |
 | S3 | `s3_endpoint`, `s3_access_key`, `s3_secret_key` | buckets `vss-chunks`, `vss-chunks-segments` |
 | Embed1 | `embedding_host`/`embedding_port` (**8003**), `embedding_dimensions: 256`, `embedding_local_nim`, `embedding_authorization` | host `166.19.38.112`; auth from `/config/<team>.config`; same server + dims as ingest |
-| Reason2 | `cosmos_host`/`cosmos_port` (**8001**), `cosmos_model`, `cosmos_authorization` | host `166.19.38.112`; auth from `/config/<team>.config`; synthesis (text-only) |
+| Cosmos3-Reason | `cosmos_host`/`cosmos_port` (**8001**), `cosmos_model`, `cosmos_authorization` | host `166.19.38.112`; auth from `/config/<team>.config`; synthesis (text-only) |
 | Cloud | `nvidia_api_key` | only if `embedding_local_nim: false` |
 | VMS | `vast_host`, `tenant_name` (`default`) | user login validated via `/api/token/` |
 | Auth | `jwt_secret` | **required**, long random (`openssl rand -hex 32`); backend won't start if empty; reuse on upgrades |
 | Misc | `max_upload_size_mb`, `display_timezone` | |
 
-> **Model host is `166.19.38.112`; Reason2 is port `8001`, Embed1 is `8003` with 256 dimensions.** Read `GPU_BEARER_TOKEN` from `/config/<team>.config`. The backend does **not** call YOLO.
+> **Model host is `166.19.38.112`; Cosmos3-Reason is port `8001`, Embed1 is `8003` with 256 dimensions.** Read `GPU_BEARER_TOKEN` from `/config/<team>.config`. The backend does **not** call YOLO.
 
 `NAMESPACE` in the secret is substituted by `QUICK_DEPLOY.sh` at apply time — leave the literal `NAMESPACE`.
 
@@ -55,7 +55,7 @@ Set real images (default placeholder `your.registry/...:v1`) in `backend-deploym
 
 ## 3. Align with ingest (when both secrets exist)
 
-Backend uses **underscore** keys; ingest `vss2-secret` uses **no-underscore** keys (`s3endpoint`, `vdbendpoint`, `embeddinghost`, `embeddingdimensions`). Compare `/config/backend-secret.yaml` ↔ `/config/vss-cli-secret.yaml` when both are present. S3, embedding/Reason2 hosts, embedding **dims (`256`)**, and bucket/schema/collection names must match, or search returns nothing.
+Backend uses **underscore** keys; ingest `vss2-secret` uses **no-underscore** keys (`s3endpoint`, `vdbendpoint`, `embeddinghost`, `embeddingdimensions`). Compare `/config/backend-secret.yaml` ↔ `/config/vss-cli-secret.yaml` when both are present. S3, embedding/Cosmos3-Reason hosts, embedding **dims (`256`)**, and bucket/schema/collection names must match, or search returns nothing.
 
 **Exception — the VastDB endpoint differs by design:** the backend queries VastDB through the **Query Engine VIP**, while ingest writes through the **regular (data) VIP**. So `vdb_endpoint` (backend) and `vdbendpoint` (ingest) point at *different* VIPs of the same cluster — don't force them equal.
 
@@ -65,7 +65,7 @@ Backend uses **underscore** keys; ingest `vss2-secret` uses **no-underscore** ke
 | VastDB endpoint | `vdb_endpoint` = **Query Engine VIP** | `vdbendpoint` = **regular (data) VIP** | **different** |
 | Bucket / schema / collection | `vdb_bucket`/`vdb_schema`/`vdb_collection: vss-collection` | `vdbbucket`/`vdbschema`/`vdbcollection` | same |
 | Embed host/dims | `embedding_host` / `embedding_dimensions: 256` | `embeddinghost` / `embeddingdimensions` | same |
-| Reason2 host | `cosmos_host` | `cosmos_host` | same |
+| Cosmos3-Reason host | `cosmos_host` | `cosmos_host` | same |
 
 ## Agent instructions
 

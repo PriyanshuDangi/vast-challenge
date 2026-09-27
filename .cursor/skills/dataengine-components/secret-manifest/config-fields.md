@@ -5,7 +5,7 @@ Filled file for Cursor: `/config/vss-cli-secret.yaml` (ask the user to place it 
 ## Sourcing values
 
 - **Filled secret YAML** — read/write `/config/vss-cli-secret.yaml` first; never look under the repo's `team-configs/` or invent credentials.
-- **Model endpoints** — shared host `166.19.38.112`; ports Reason2 **8001**, YOLO **8002**, Embed1 **8003**; bearer token from `/config/<team>.config`.
+- **Model endpoints** — shared host `166.19.38.112`; ports Cosmos3-Reason **8001**, YOLO **8002**, Embed1 **8003**; bearer token from `/config/<team>.config`.
 - **Anything you don't know** (S3/VastDB endpoints + keys, credentials, bucket/schema/collection names if non-default) — **ask the user**. Do not guess credentials, endpoints, or hosts.
 - Defaults shown below are safe fallbacks only for non-secret, non-endpoint fields (timeouts, durations, dims already fixed at 256).
 
@@ -17,16 +17,16 @@ Filled file for Cursor: `/config/vss-cli-secret.yaml` (ask the user to place it 
 | `s3secretkey` | Yes | |
 | `s3endpoint` | Yes | `http://` or `https://` tenant S3 VIP |
 
-## Reasoning — Cosmos-Reason2 (video-reasoner)
+## Reasoning — Cosmos3-Reason (video-reasoner)
 
-vss2 uses **Cosmos-Reason2** as the VLM (no nemotron provider key in the current secret).
+vss2 uses **Cosmos3-Reason** as the VLM.
 
 | Key | Required | Default |
 |-----|----------|---------|
 | `cosmos_host` | Yes | IP/hostname reachable from DataEngine workers (or host/path prefix for routed APIs) |
 | `cosmos_port` | Yes | `8001` |
 | `cosmoshttpscheme` | No | `http` (local) / `https` (routed) |
-| `cosmos_model` | No | `./Cosmos-Reason2-8B` |
+| `cosmos_model` | No | `nvidia/cosmos3-reason` |
 | `cosmos_max_tokens` | No | `6000` |
 | `cosmos_temperature` | No | `0.2` |
 | `cosmos_authorization` | No | optional Bearer for hosted/routed Cosmos APIs |

@@ -3,7 +3,7 @@ name: dataengine-secret-manifest
 description: >-
   Create and edit the VSS DataEngine ingest secret (vss2-secret) using
   /config/vss-cli-secret.yaml. Align with the pipeline manifest before
-  vastde pipelines create. Use when filling S3, Cosmos-Reason2, Cosmos-Embed1, YOLO,
+  vastde pipelines create. Use when filling S3, Cosmos3-Reason, Cosmos-Embed1, YOLO,
   VastDB, or prompt-suggester keys, or aligning the secret name.
 ---
 
@@ -48,7 +48,7 @@ Full key reference: [config-fields.md](config-fields.md).
 ## Key groups (vss2)
 
 - **S3** (segmenter/reasoner/embedder): `s3accesskey`, `s3secretkey`, `s3endpoint`.
-- **Reasoning — Cosmos-Reason2** (VLM, reasoner): `cosmos_host`, `cosmos_port` (**8001**), `cosmoshttpscheme`, `cosmos_model` (`./Cosmos-Reason2-8B`), `cosmos_max_tokens`, `cosmos_temperature`, optional `cosmos_authorization` (from `GPU_BEARER_TOKEN` in `/config/<team>.config`).
+- **Reasoning — Cosmos3-Reason** (VLM, reasoner): `cosmos_host`, `cosmos_port` (**8001**), `cosmoshttpscheme`, `cosmos_model` (`nvidia/cosmos3-reason`), `cosmos_max_tokens`, `cosmos_temperature`, optional `cosmos_authorization` (from `GPU_BEARER_TOKEN` in `/config/<team>.config`).
 - **Detector — YOLO11** (detector): `yolo_infer_host`, `yolo_infer_port` (**8002**), `yolo_conf`, `yolo_model` (`yolo11s.pt`), `yolo_presign_ttl`, `detection_sidecar_prefix`, `detection_store_frames`, optional `detector_authorization`.
 - **Embedding — Cosmos-Embed1** (embedder): `embedding_local_nim`, `embeddinghost`, `embeddingport` (**8003**), `embeddinghttpscheme`, `embeddingmodel` (`nvidia/cosmos-embed1`), `embeddingdimensions` (**256** — must match VastDB vector column), `visual_embedding_enabled/model/dimensions`, `embedding_authorization`, `nvidia_api_key` (cloud only).
 - **VastDB** (writer): `vdbendpoint`, `vdbbucket` (`vss-db`), `vdbschema` (`vss-schema`), `vdbcollection` (`vss-collection`), `vdbaccesskey`, `vdbsecretkey`.
@@ -71,7 +71,7 @@ Ensure `manifest.config.secrets` includes `vss2-secret` (matches the CLI secret 
 
 1. **Resolve secret file:** use `/config/vss-cli-secret.yaml`. If missing, ask the user to place it there. Do not search the repo's `team-configs/` or invent credentials.
 2. Read that file (or GUI twin); list unfilled placeholders (`""`, `<your-...>`).
-3. **Model-endpoint keys** — use shared host `166.19.38.112`, ports Reason2 `8001`, YOLO `8002`, Embed1 `8003`, dims `256`; get `GPU_BEARER_TOKEN` from the single `/config/*.config` team file.
+3. **Model-endpoint keys** — use shared host `166.19.38.112`, ports Cosmos3-Reason `8001`, YOLO `8002`, Embed1 `8003`, dims `256`; get `GPU_BEARER_TOKEN` from the single `/config/*.config` team file.
 4. **Anything you don't know** (S3/VastDB endpoints, access/secret keys) — **ask the user**; never guess.
 5. Never copy `/config/` credentials into the repo or commit them; warn before git ops.
 6. `embeddingdimensions` must equal the VastDB vector column (256); recreate the collection after changing it.

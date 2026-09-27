@@ -29,4 +29,4 @@ copy credentials into it.
 
 - VM config: `/config/<team>.config`, `/config/vss-cli-secret.yaml`, `/config/backend-secret.yaml`, `/config/kubeconfig`. Never search the repo's `team-configs/`.
 - Secret name: `vss2-secret`; buckets `vss-chunks` → `vss-chunks-segments`; VastDB `vss-db` / `vss-schema` / `vss-collection` (+ `vss-prompts-events`).
-- Models: Cosmos-Reason2 `166.19.38.112:8001`, YOLO11 `:8002`, Cosmos-Embed1 `:8003` (256-dim), Canary `:8004` (optional); bearer token comes from `/config/<team>.config`.
+- Models: Cosmos3-Reason `166.19.38.112:8001`, YOLO11 `:8002`, Cosmos-Embed1 `:8003` (256-dim), Canary `:8004` (optional); bearer token comes from `/config/<team>.config`.

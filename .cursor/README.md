@@ -81,7 +81,7 @@ Shared endpoint addresses are documented in [gpu/README.md](skills/gpu/README.md
 
 | Skill | Summary |
 |-------|---------|
-| [gpu README](skills/gpu/README.md) | What each model does + curl examples (Reason2, YOLO, Embed1, Canary) |
+| [gpu README](skills/gpu/README.md) | What each model does + curl examples (Cosmos3-Reason, YOLO, Embed1, Canary) |
 | [model-health](skills/gpu/model-health/SKILL.md) | Liveness/readiness for all four |
 | [model-smoke-test](skills/gpu/model-smoke-test/SKILL.md) | Minimal real inference per model |
 

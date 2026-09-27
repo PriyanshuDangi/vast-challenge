@@ -2,7 +2,7 @@
 name: gpu-model-health
 description: >-
   Check liveness/readiness of VSS GPU models using the paths that each NIM actually
-  exposes (Reason2/Embed1: /v1/models + /v1/health/*; YOLO: /healthz; Canary:
+  exposes (Cosmos3-Reason/Embed1: /v1/models + /v1/health/*; YOLO: /healthz; Canary:
   /v1/health/ready|live only). Auth config: /config/<team>.config.
 ---
 
@@ -16,7 +16,7 @@ mapfile -t TEAM_CONFIGS < <(find /config -maxdepth 1 -type f -name '*.config' | 
 TEAM_CONFIG="${TEAM_CONFIGS[0]}"
 set -a && source "$TEAM_CONFIG" && set +a
 GPU_HOST=166.19.38.112
-COSMOS_REASON2_URL=http://${GPU_HOST}:8001
+COSMOS3_REASON_URL=http://${GPU_HOST}:8001
 YOLO_URL=http://${GPU_HOST}:8002
 COSMOS_EMBED1_URL=http://${GPU_HOST}:8003
 CANARY_1B_URL=http://${GPU_HOST}:8004
@@ -29,7 +29,7 @@ AUTH=(-H "Authorization: Bearer ${GPU_BEARER_TOKEN}")
 
 | Model | URL env | Health checks that work | Do **not** use (404 here) |
 |-------|---------|-------------------------|---------------------------|
-| **Reason2** | `$COSMOS_REASON2_URL` | `GET /v1/models` → 200; `GET /v1/health/ready` → 200; `GET /v1/health/live` → 200 | `/v1/health`, `/health` |
+| **Cosmos3-Reason** | `$COSMOS3_REASON_URL` | `GET /v1/models` → 200; `GET /v1/health/ready` → 200; `GET /v1/health/live` → 200 | `/v1/health`, `/health` |
 | **YOLO11** | `$YOLO_URL` | `GET /healthz` → 200 (`ok`, `model_loaded`); optional `GET /openapi.json` / `/docs` | `/v1/models`, `/v1/health/ready`, `/v1/health/live` |
 | **Embed1** | `$COSMOS_EMBED1_URL` | `GET /v1/models` → 200; `GET /v1/health/ready` → 200; `GET /v1/health/live` → 200 | `/v1/health`, `/health` |
 | **Canary-1B** | `$CANARY_1B_URL` | `GET /v1/health/ready` → 200; `GET /v1/health/live` → 200; optional `GET /openapi.json` / `/docs` | `/v1/models`, `/healthz`, `/v1/health` |
@@ -38,17 +38,17 @@ A **404 on an unsupported path is not a failure** for that model. Only fail heal
 
 ## Commands (copy/paste)
 
-### Reason2 + Embed1 (OpenAI/NIM-style)
+### Cosmos3-Reason + Embed1 (OpenAI/NIM-style)
 
 ```bash
-for ep in "$COSMOS_REASON2_URL" "$COSMOS_EMBED1_URL"; do
+for ep in "$COSMOS3_REASON_URL" "$COSMOS_EMBED1_URL"; do
   echo "== $ep =="
   curl -s -o /dev/null -w "models:%{http_code} " "${AUTH[@]}" "$ep/v1/models"
   curl -s -o /dev/null -w "ready:%{http_code} " "${AUTH[@]}" "$ep/v1/health/ready"
   curl -s -o /dev/null -w "live:%{http_code}\n" "${AUTH[@]}" "$ep/v1/health/live"
 done
 # Expect all three codes = 200 for each.
-curl -s "${AUTH[@]}" "$COSMOS_REASON2_URL/v1/models" | python3 -m json.tool   # id ~ cosmos-reason2
+curl -s "${AUTH[@]}" "$COSMOS3_REASON_URL/v1/models" | python3 -m json.tool   # id ~ cosmos3-reason
 curl -s "${AUTH[@]}" "$COSMOS_EMBED1_URL/v1/models" | python3 -m json.tool    # id ~ cosmos-embed1
 ```
 
@@ -76,7 +76,7 @@ curl -s -o /dev/null -w "openapi:%{http_code} docs:%{http_code}\n" \
 
 | Model | Pass when |
 |-------|-----------|
-| Reason2 / Embed1 | `/v1/models` + `/v1/health/ready` + `/v1/health/live` all 200 |
+| Cosmos3-Reason / Embed1 | `/v1/models` + `/v1/health/ready` + `/v1/health/live` all 200 |
 | YOLO | `/healthz` 200 and JSON `ok==true` and `model_loaded==true` |
 | Canary | `/v1/health/ready` + `/v1/health/live` both 200 |
 
