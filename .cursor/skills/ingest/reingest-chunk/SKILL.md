@@ -5,9 +5,10 @@ description: Finds and re-ingests one specific fully indexed VSS chunk from Expl
 
 # Re-ingest one Explore chunk
 
-Use this skill for exactly one parent chunk shown as one card in Explore. For this
-hackathon, re-ingest is the only supported ingest mechanism. Do not upload, batch
-sync, manually copy S3 objects, or re-ingest an arbitrary individual segment.
+Use this skill for exactly one parent chunk shown as one card in Explore. For
+already-indexed archive cards, re-ingest is the right path. To add a **new** local
+video file, use `ingest/upload-video` instead. Do not batch sync, manually copy S3
+objects, or re-ingest an arbitrary individual segment.
 
 The user does **not** need to know the chunk filename, `stream_id`, or full
 `original_video` URI. Discover the chunk, show candidates, and let the user choose.

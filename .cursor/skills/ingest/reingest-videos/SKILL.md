@@ -1,12 +1,13 @@
 ---
 name: ingest-reingest-videos
-description: Re-ingest an existing indexed VSS video or stream through detector, reasoner, embedder, and writer using the retrieval API. Use for every hackathon video-ingest request. Discovers available targets, asks the user to select a video, prompt/metadata behavior, and chunk count, then starts and monitors re-ingest.
+description: Re-ingest an existing indexed VSS video or stream through detector, reasoner, embedder, and writer using the retrieval API. Use for re-processing already-indexed archive content. Discovers available targets, asks the user to select a video, prompt/metadata behavior, and chunk count, then starts and monitors re-ingest. For uploading a new local video file, use ingest/upload-video instead.
 ---
 
 # Ingest: re-ingest existing videos
 
-For this hackathon, **re-ingest is the only supported ingest path**. Never upload a
-new file, run batch sync, copy an object manually, or write directly to S3.
+Use this skill to re-process **already-indexed** archive content. To add a **new**
+local video file through the backend, use `ingest/upload-video` instead. Do not
+run batch sync, copy objects manually, or write directly to S3.
 
 If the request is specifically for one Explore card/chunk—or the user describes a
 scene but does not know its filename—use `ingest/reingest-chunk` instead.
