@@ -52,14 +52,14 @@ A separate **events / prompt-suggester** function runs on a schedule and feeds U
 
 | Function | What it does |
 |----------|--------------|
-| **Segmenter** | Splits each uploaded chunk into short fixed-length clips and writes them to the segments bucket. **Builders challenge:** organizers already used the Segmenter to pre-ingest your corpus. During the challenge you **only re-ingest** data that is already segmented and indexed — the Segmenter is **not** in the path you run. |
+| **Segmenter** | Splits each uploaded chunk into short fixed-length clips and writes them to the segments bucket. **Builders challenge:** organizers already used the Segmenter to pre-ingest your corpus. Re-ingest of that corpus skips the Segmenter; a **new** upload via `ingest/upload-video` runs it again. |
 | **Detector** | Runs **YOLO11** on each segment and records object classes, counts, and bbox sidecars. |
 | **Reasoner** | Calls **NVIDIA Cosmos3-Reason** to write a searchable natural-language description of the segment. |
 | **Embedder** | Calls **NVIDIA Cosmos Embed1** to build text (and visual) vectors for hybrid search. |
 | **VastDB writer** | Persists embeddings, reasoning, detections, and metadata as a row in your VastDB collection. |
 | **Events (prompt-suggester)** | Periodically scans recent segments and writes suggested search prompts / key events for the UI. |
 
-**Builders challenge note:** your archive is **pre-ingested** (Segmenter already ran). Your live path is **re-ingest** on existing segments: Detector → Reasoner → Embedder → VastDB writer (via `ingest/reingest-videos` / `reingest-chunk`). You don’t upload new chunks or invoke the Segmenter for this challenge.
+**Builders challenge note:** your archive is **pre-ingested** (Segmenter already ran). For that corpus, the usual path is **re-ingest** on existing segments: Detector → Reasoner → Embedder → VastDB writer (via `ingest/reingest-videos` / `reingest-chunk`). To add a **new** local file, use `ingest/upload-video` (full pipeline including Segmenter).
 
 You don’t need to redeploy this graph for the hackathon — treat it as the engine behind search, dashboard, suggestions, and re-ingest.
 
@@ -72,7 +72,7 @@ For your team you already have:
 
 | Piece | What it is |
 |-------|------------|
-| **Ingest pipeline** | DataEngine graph that pre-ingested your corpus (Segmenter already ran). During the challenge you **re-ingest** existing segments (detect → reason → embed → write VastDB) |
+| **Ingest pipeline** | DataEngine graph that pre-ingested your corpus (Segmenter already ran). Re-ingest existing segments, or upload a new file via `ingest/upload-video` |
 | **UI** | Web app at your `INGRESS_URL` (frontend + backend) |
 | **S3 buckets** | Chunks + segments for uploads |
 | **VastDB** | Indexed segments, embeddings, detections, reasoning text |
