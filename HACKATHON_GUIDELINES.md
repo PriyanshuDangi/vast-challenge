@@ -119,7 +119,7 @@ Screenshots live in `docs/hackathon/`.
 **Discover. Explore. Invent. Build.**
 
 1. **Discover the skills** — ask Cursor what VSS can do; let it find and use the skills under `.cursor/skills/`.
-2. **Explore the product** — search, filter by metadata (`city`, `camera_id`, `scenario`, `category`), try suggestions, open the dashboard, explore clips, ask the agent. Optionally open the Blueprint source and see how the pipeline and UI are built.
+2. **Explore the product** — search, filter by upload metadata (`camera_id`, `capture_type`, `location`) and object class, try suggestions, open the dashboard, explore clips, ask the agent. Optionally open the Blueprint source and see how the pipeline and UI are built.
 3. **Pick a use case** from the video corpus below (or combine groups) — traffic, crowds, egocentric / robotics, warehouse safety, driving, NYC street safety.
 4. **Build something** — a workflow, a mini-app, a Cursor-driven demo, a report pipeline, a filtered “ops board”, a Q&A bot for your scenario. Stay on the live APIs and skills, **or** change the Blueprint (pipeline functions, prompts, backend, UI) when your use case needs it.
 
@@ -143,13 +143,13 @@ Each `<folder>` is one source (one camera / POV). Files are already time-chunked
 
 That should pull Bangkok traffic, NYC/SF driving, and warehouse forklift POV into one result set.
 
-Useful metadata on these objects: `scenario`, `city`, `camera_id`, `category`, `chunk_index`. Built-in scenarios include `surveillance`, `traffic`, `retail`, `warehouse`, `egocentric`, `sports`, `nhl`, `general`.
+Search UI filters (upload metadata): `camera_id`, `capture_type`, `location`, plus **object class** from detections. Corpus tables below also list a Category column for demo grouping — that is not a filter field. For re-ingest, set analysis `scenario` (presets: `surveillance`, `traffic`, `retail`, `warehouse`, `egocentric`, `sports`, `nhl`, `general`).
 
 ### Use-case groups
 
 #### 1. Vehicle & Pedestrian Monitoring — `traffic` / `surveillance`
 
-| Folder (`s3://videos-source/<folder>/…`) | City | Category | `camera_id` |
+| Folder (`s3://videos-source/<folder>/…`) | Location | Category | `camera_id` |
 |------------------------------------------|------|----------|-------------|
 | `bangkok_intersection2` | bangkok | Traffic | `bangkok_cam-1` |
 | `bankgog_intersection1` | bangkok | Traffic | `bangkok_cam-2` |
@@ -160,7 +160,7 @@ Fixed street/intersection cams. Story: congestion + pedestrian-density search ac
 
 #### 2. First-Person Activity Analysis — `egocentric` (Robotics)
 
-| Folder | City | Category | `camera_id` |
+| Folder | Location | Category | `camera_id` |
 |--------|------|----------|-------------|
 | `barista1` | nyc | Robotics | `barista_pov_1` |
 | `barista2` | nyc | Robotics | `barista_pov_2` |
@@ -172,7 +172,7 @@ Head-mounted / POV hands-at-work. Story: task & SOP analysis and robot-learning 
 
 #### 3. Warehouse Safety & Operations — `warehouse` / `egocentric`
 
-| Folder | City | Category | `camera_id` |
+| Folder | Location | Category | `camera_id` |
 |--------|------|----------|-------------|
 | `warehouse1` | warehouse | Robotics | `warehouse_cam1` |
 | `parking-cam-private` | oregon | Streets | `parking_cam_1` |
@@ -184,7 +184,7 @@ Industrial **safety & near-miss** search — *“forklift near a person in an ai
 
 #### 4. Live Driving & Road Safety — `traffic` / `egocentric`
 
-| Folder | City | Category | `camera_id` |
+| Folder | Location | Category | `camera_id` |
 |--------|------|----------|-------------|
 | `driving_nyc` | nyc | Traffic | `nyc_driver_1` |
 | `driving_sf` | sanfrancisco | Traffic | `sf_driver_1` |
@@ -193,7 +193,7 @@ Dashcam/hood POV — Manhattan vs quiet Sunday San Francisco. Try: *“Cross a b
 
 #### 5. NYC Street Safety Surveillance — `surveillance` / `egocentric`
 
-| Folder | City | Category | `camera_id` |
+| Folder | Location | Category | `camera_id` |
 |--------|------|----------|-------------|
 | `nyc_surv_cam` | nyc | Crowds | `nyc_surveillance_2` |
 | `walking_cam_nyc` | nyc | Crowds | `nyc_walk_1` |
@@ -249,6 +249,7 @@ Useful skills (start here):
 | `retrieval/suggest-prompts` | AI-generated search chips & key events                    |
 | `retrieval/dashboard`       | Counts, quality, objects, ingest vs index health          |
 | `retrieval/agent-qa`        | Natural-language Q&A grounded in the archive              |
+| `ingest/upload-video`       | Upload a new video via `POST /api/v1/videos/upload`        |
 | `ingest/reingest-videos`    | Re-ingest an indexed video/stream (hackathon ingest path) |
 | `ingest/reingest-chunk`     | Re-ingest one specific Explore card / chunk               |
 
@@ -276,7 +277,7 @@ Write full prompts in Cursor: name what you want, point at your team config, and
 **2. Cross-camera “person near vehicle” board**
 
 > Build a small webpage that answers: *“person close to a moving vehicle”* across my archive.  
-> Group hits by city / `camera_id` (Bangkok traffic, NYC/SF driving, warehouse forklift).  
+> Group hits by `location` / `camera_id` (Bangkok traffic, NYC/SF driving, warehouse forklift).  
 > For each hit, show a triptych: one clip **before**, the **event**, and one clip **after** (~5 seconds each).  
 > Serve it with a local proxy so browser CORS is handled, verify it end-to-end, and save it under `tools/`.  
 > *(Cursor will use skills: `retrieval/login`, `retrieval/search`, `retrieval/videos`, `retrieval/list-metadata`)*
@@ -285,7 +286,7 @@ Write full prompts in Cursor: name what you want, point at your team config, and
 
 > Build a standalone page for Pack C: histogram of top detected objects + a list of near-miss style hits  
 > (forklift near a person, tight aisle, missing PPE). For each object, show a small bounding-box crop from a real segment.  
-> Filter by `camera_id` / location. Save under `tools/`, open the page, and report the top findings.  
+> Filter by `camera_id` / `location`. Save under `tools/`, open the page, and report the top findings.  
 > Keep `parking-cam-private` out of any public demo.  
 > *(Cursor will use skills: `retrieval/login`, `retrieval/dashboard`, `retrieval/search`, `retrieval/videos`)*
 
