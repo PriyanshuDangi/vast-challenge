@@ -9,7 +9,7 @@ Agent skills for working with the VSS2 video search stack. Each skill lives in i
 ├── dataengine-components/  # Build & deploy DataEngine ingest pipeline (vastde)
 ├── deployment/             # Deploy retrieval K8s apps (backend/frontend/batch-sync)
 ├── gpu/                    # Health + smoke-test model endpoints
-├── ingest/                 # Re-ingest existing indexed video (hackathon path)
+├── ingest/                 # Upload new video or re-ingest indexed archive
 └── retrieval/              # Query and explore indexed video
 ```
 
@@ -22,10 +22,12 @@ Runtime configuration is mounted outside the repo at absolute `/config/`:
 Skills must not search the repo's `team-configs/`.
 ## Ingest
 
-For this hackathon, **re-ingest** is the supported ingest path (no direct upload / stream / S3 put).
+**Re-ingest** for content already in the team archive (hackathon default). **Upload**
+when adding a new local video via the backend (`POST /api/v1/videos/upload`).
 
 | Skill | Summary |
 |-------|---------|
+| [upload-video](skills/ingest/upload-video/SKILL.md) | Multipart upload of a new video via backend upload API |
 | [reingest-videos](skills/ingest/reingest-videos/SKILL.md) | Re-ingest a selected indexed video/stream via dashboard API |
 | [reingest-chunk](skills/ingest/reingest-chunk/SKILL.md) | Re-ingest one specific Explore card / chunk |
 
@@ -86,6 +88,8 @@ Shared endpoint addresses are documented in [gpu/README.md](skills/gpu/README.md
 | [model-smoke-test](skills/gpu/model-smoke-test/SKILL.md) | Minimal real inference per model |
 
 ## Typical flows
+
+**Upload a new file** → `login` → `upload-video` → `dashboard` / `videos`
 
 **Re-ingest** → `login` → `reingest-videos` (or `reingest-chunk`) → `dashboard`
 
