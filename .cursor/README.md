@@ -74,6 +74,7 @@ Retrieval-side Kubernetes apps (`deployments/vss-k8s-application/` in the bluepr
 | [build-yamls](skills/deployment/build-yamls/SKILL.md) | Fill secrets + namespace/cluster/image tags |
 | [deploy](skills/deployment/deploy/SKILL.md) | Build/push + quick deploy + ingress |
 | [health](skills/deployment/health/SKILL.md) | Pods, `/health`, `/api/v1/config` |
+| [deploy-app-no-registry](skills/deployment/deploy-app-no-registry/SKILL.md) | On-cluster mini-app at `/app` on the team host (no Docker/registry) |
 
 → [deployment/README.md](skills/deployment/README.md)
 
@@ -96,3 +97,5 @@ Shared endpoint addresses are documented in [gpu/README.md](skills/gpu/README.md
 **Search** → `login` → `list-metadata` (optional) → `search` or `agent-qa`
 
 **Watch a result** → `login` → `videos`
+
+**Hackathon mini-app (no Docker)** → write small app → `deployment/deploy-app-no-registry` → `http://video-lab-team-<N>.cosmos.vastdata.com/app`

@@ -13,7 +13,7 @@ Open this repo in Cursor so agents discover skills under [`.cursor/skills/`](.cu
 | **Ingest** | Upload a new video, or re-ingest existing indexed videos/chunks |
 | **Retrieval** | Search, browse, and ask questions over indexed video via the backend API |
 | **DataEngine** | Build/register pipeline functions, triggers, secrets (`vastde`) |
-| **Deployment** | Deploy retrieval K8s apps and check health |
+| **Deployment** | Deploy retrieval K8s apps, check health, or ship a hackathon mini-app without Docker/registry |
 | **GPU** | Health-check and smoke-test Cosmos / YOLO model endpoints |
 
 Each skill is a folder with a `SKILL.md` containing full instructions. Agents read those files when a task matches the skill description.

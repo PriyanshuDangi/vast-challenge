@@ -2,6 +2,8 @@
 
 Deploy and operate the **retrieval side** (backend, frontend, batch-sync) on Kubernetes from `deployments/vss-k8s-application/`. Use `KUBECONFIG=/config/kubeconfig`. (The DataEngine ingest pipeline deploys separately — see `dataengine-components/`.)
 
+For **hackathon mini-apps** on top of VSS when the VM has no Docker/registry, use [deploy-app-no-registry](deploy-app-no-registry/SKILL.md) (on-cluster only: public image + ConfigMap + Secret, Ingress path `/app` on the team host).
+
 ## Skills
 
 | Skill | Purpose |
@@ -9,6 +11,7 @@ Deploy and operate the **retrieval side** (backend, frontend, batch-sync) on Kub
 | [build-yamls](build-yamls/SKILL.md) | Fill `/config/backend-secret.yaml` + image tags; align with `/config/vss-cli-secret.yaml` |
 | [deploy](deploy/SKILL.md) | Build/push images + `QUICK_DEPLOY.sh <ns> <cluster>` + ingress DNS |
 | [health](health/SKILL.md) | `kubectl get pods`, `/health` (8000), `GET /api/v1/config` |
+| [deploy-app-no-registry](deploy-app-no-registry/SKILL.md) | On-cluster app at team host `/app` without Docker build/push |
 
 ## Components
 

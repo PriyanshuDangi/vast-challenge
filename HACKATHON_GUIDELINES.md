@@ -252,10 +252,13 @@ Useful skills (start here):
 | `ingest/upload-video`       | Upload a new video via `POST /api/v1/videos/upload`        |
 | `ingest/reingest-videos`    | Re-ingest an indexed video/stream (hackathon ingest path) |
 | `ingest/reingest-chunk`     | Re-ingest one specific Explore card / chunk               |
+| `deployment/deploy-app-no-registry` | Deploy a mini-app **on K8s** (not local) at `http://video-lab-team-<N>.cosmos.vastdata.com/app` — no Docker build/push (ConfigMap + public image + Secret) |
 
 
 And a lot more :)  
 Ask Cursor to discover the skills. He’s your best friend 🙂
+
+**No Docker / no registry on the VM?** Ship the demo **on the cluster**: public base image (e.g. `python:3.12-slim`), code from a ConfigMap, team VSS creds from a Secret, Ingress on **your** host at path **`/app`**. Ask Cursor to use `deployment/deploy-app-no-registry`.
 
 Full skill index: `[.cursor/README.md](.cursor/README.md)`
 
@@ -279,8 +282,8 @@ Write full prompts in Cursor: name what you want, point at your team config, and
 > Build a small webpage that answers: *“person close to a moving vehicle”* across my archive.  
 > Group hits by `location` / `camera_id` (Bangkok traffic, NYC/SF driving, warehouse forklift).  
 > For each hit, show a triptych: one clip **before**, the **event**, and one clip **after** (~5 seconds each).  
-> Serve it with a local proxy so browser CORS is handled, verify it end-to-end, and save it under `tools/`.  
-> *(Cursor will use skills: `retrieval/login`, `retrieval/search`, `retrieval/videos`, `retrieval/list-metadata`)*
+> Deploy it **on Kubernetes** (not local) to my team namespace without Docker build/push — Ingress path `/app` on my team host.  
+> *(Cursor will use skills: `retrieval/login`, `retrieval/search`, `retrieval/videos`, `retrieval/list-metadata`, `deployment/deploy-app-no-registry`)*
 
 **3. Warehouse safety ops board**
 
