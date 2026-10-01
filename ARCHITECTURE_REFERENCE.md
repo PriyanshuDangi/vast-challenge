@@ -42,7 +42,7 @@ A separate **events / prompt-suggester** function runs on a schedule and feeds U
 
 ![VAST DataEngine pipeline](docs/hackathon/vss-pipeline.png)
 
-**VAST DataEngine (pipeline’s tab)** — there you can edit the pipeline and see the pipeline’s flow, logs, traces, etc.
+**VAST DataEngine (pipeline’s tab)** — view the pipeline’s flow, logs, and traces. Treat the graph as given for the challenge (re-ingest / upload via skills; don’t rebuild functions or redeploy the pipeline).
 
 | Function | What it does |
 |----------|--------------|
@@ -71,15 +71,15 @@ For your team you already have:
 | **S3 buckets** | Chunks + segments for uploads |
 | **VastDB** | Indexed segments, embeddings, detections, reasoning text |
 | **This repo in Cursor** | Agent **skills** that know how to call every important API — open this project in Cursor and describe what you want |
-| **Source code repo** | Full VSS Blueprint (`vss-blueprint`) — pipeline functions, backend, frontend, deployments. Clone it if you want to dig in; open it in Cursor to **view / change / update / add** anything for your use case |
+| **Source code repo** | Full VSS Blueprint (`vss-blueprint`) — optional reading; the live stack is already up |
 
 ```bash
 cd /vss-blueprint
 ```
 
-Cloning or changing the Blueprint is **not a requirement**. The live UI, APIs, and Cursor skills in this repo are enough for a strong demo — search, filters, re-ingest, dashboards, mini-apps on top of the archive. Dig into the source only if you want custom pipeline/UI behavior.
+Cloning the Blueprint is **not a requirement**. The live UI, APIs, and Cursor skills in this repo are enough for a strong demo — search, filters, re-ingest, upload, dashboards, mini-apps on top of the archive. Do not rebuild or redeploy DataEngine ingest functions for the challenge.
 
-Open the UI, log in with your team user, and open **this skills repo** in **Cursor** (add the source repo only if you want to modify the stack). Skills are how you move fast against the live APIs.
+Open the UI, log in with your team user, and open **this skills repo** in **Cursor**. Skills are how you move fast against the live APIs.
 
 ---
 

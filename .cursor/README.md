@@ -6,8 +6,7 @@ Agent skills for working with the VSS2 video search stack. Each skill lives in i
 
 ```
 .cursor/skills/
-├── dataengine-components/  # Build & deploy DataEngine ingest pipeline (vastde)
-├── deployment/             # Deploy retrieval K8s apps (backend/frontend/batch-sync)
+├── deployment/             # Deploy retrieval K8s apps + hackathon mini-apps
 ├── gpu/                    # Health + smoke-test model endpoints
 ├── ingest/                 # Upload new video or re-ingest indexed archive
 └── retrieval/              # Query and explore indexed video
@@ -17,9 +16,10 @@ Runtime configuration is mounted outside the repo at absolute `/config/`:
 
 - `/config/<team>.config` — team credentials and GPU bearer
 - `/config/kubeconfig` — Kubernetes access
-- `/config/vss-cli-secret.yaml` and `/config/backend-secret.yaml` — ingest/backend secrets
+- `/config/backend-secret.yaml` — retrieval backend secret (and `/config/vss-cli-secret.yaml` when aligning ingest keys)
 
 Skills must not search the repo's `team-configs/`.
+
 ## Ingest
 
 **Re-ingest** for content already in the team archive (hackathon default). **Upload**
@@ -49,21 +49,6 @@ Query the indexed archive through the backend API (`/api/v1`). Most routes need 
 | [vastdb-read](skills/retrieval/vastdb-read/SKILL.md) | Raw VastDB inspection (bypasses the API) |
 
 → [retrieval/README.md](skills/retrieval/README.md)
-
-## DataEngine components
-
-Build and operate the ingest pipeline with `vastde` + manifests.
-
-| Skill | Summary |
-|-------|---------|
-| [edit-function](skills/dataengine-components/edit-function/SKILL.md) | Write/modify function code |
-| [build-function](skills/dataengine-components/build-function/SKILL.md) | `vastde build` + push images |
-| [functions](skills/dataengine-components/functions/SKILL.md) | Register functions / deployments |
-| [triggers](skills/dataengine-components/triggers/SKILL.md) | S3 + scheduled triggers |
-| [secret-manifest](skills/dataengine-components/secret-manifest/SKILL.md) | Fill `vss2-secret` |
-| [pipeline-manifest](skills/dataengine-components/pipeline-manifest/SKILL.md) | Wire and deploy the pipeline |
-
-→ [dataengine-components/README.md](skills/dataengine-components/README.md)
 
 ## Deployment
 

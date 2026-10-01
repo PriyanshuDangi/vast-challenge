@@ -42,7 +42,7 @@ curl -s "$BACKEND/api/v1/auth/me" -H "Authorization: Bearer $TOKEN"   # {usernam
 
 ## Notes
 
-- This is the backend-issued JWT (retrieval/ingest APIs). It is **separate** from `vastde` VMS auth (`dataengine-components/setup`) and from raw VastDB SDK access (`retrieval/vastdb-read`).
+- This is the backend-issued JWT (retrieval/ingest APIs). It is **separate** from raw VastDB SDK access (`retrieval/vastdb-read`).
 - Token lifetime is set by backend config; on 401 during a session, re-login.
 - Every result is ACL-filtered to this user (private rows + public rows they can see).
 

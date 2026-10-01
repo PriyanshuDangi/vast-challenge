@@ -54,7 +54,7 @@ kubectl rollout status deploy/video-backend -n <namespace>
 
 ## Notes
 
-- This is retrieval only; the ingest pipeline is `dataengine-components/`.
+- This is retrieval only; for archive ingest use `ingest/upload-video` or `ingest/reingest-videos`.
 - Backend ingress caps body at 110m; upload cap also via `max_upload_size_mb`.
 
 ## Agent instructions

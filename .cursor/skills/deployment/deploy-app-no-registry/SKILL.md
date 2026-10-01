@@ -40,8 +40,8 @@ The skill only needs **this team's** `/config/<team>.config` — never other tea
 - No Docker daemon, no registry, or no ability to `docker build`/`push`
 - App is small enough to fit in a ConfigMap (soft limit ~1 MiB total)
 
-Do **not** use this for the official retrieval stack (`deploy-retrieval`) or for
-DataEngine function images (`build-function`). Stay in **your** team namespace only.
+Do **not** use this for the official retrieval stack (`deploy` / `build-yamls`).
+Stay in **your** team namespace only.
 
 ## Prerequisites
 

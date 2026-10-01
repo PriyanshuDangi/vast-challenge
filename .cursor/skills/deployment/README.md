@@ -1,6 +1,6 @@
 # Deployment (vss2)
 
-Deploy and operate the **retrieval side** (backend, frontend, batch-sync) on Kubernetes from `deployments/vss-k8s-application/`. Use `KUBECONFIG=/config/kubeconfig`. (The DataEngine ingest pipeline deploys separately — see `dataengine-components/`.)
+Deploy and operate the **retrieval side** (backend, frontend, batch-sync) on Kubernetes from `deployments/vss-k8s-application/`. Use `KUBECONFIG=/config/kubeconfig`. The DataEngine ingest pipeline is already running for the hackathon — use `ingest/` skills (upload / re-ingest), not pipeline editing.
 
 For **hackathon mini-apps** on top of VSS when the VM has no Docker/registry, use [deploy-app-no-registry](deploy-app-no-registry/SKILL.md) (on-cluster only: public image + ConfigMap + Secret, Ingress path `/app` on the team host).
 

@@ -151,7 +151,7 @@ curl -s -X POST "${CANARY_1B_URL}/v1/audio/transcriptions" \
   -F "model=nvidia/canary-1b"
 ```
 
-Wire results into your demo (metadata, UI, new function). Ask Cursor; use Blueprint / `dataengine-components` if you change the pipeline.
+Wire results into your demo (metadata, UI, or a mini-app). Do not change the shared DataEngine ingest pipeline.
 
 ---
 

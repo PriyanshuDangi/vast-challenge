@@ -2,7 +2,7 @@
 
 Cursor agent skills for the VSS2 video search stack — upload or re-ingest video and query the archive.
 
-**Hackathon participants:** start with **[HACKATHON_GUIDELINES.md](HACKATHON_GUIDELINES.md)** (setup, UI walkthrough, starter videos, example prompts). UI screenshots are in [`docs/hackathon/`](docs/hackathon/).
+**Hackathon participants:** start with **[ARCHITECTURE_REFERENCE.md](ARCHITECTURE_REFERENCE.md)** (models, pipeline overview, video corpus, example prompts). UI screenshots are in [`docs/hackathon/`](docs/hackathon/).
 
 Open this repo in Cursor so agents discover skills under [`.cursor/skills/`](.cursor/skills/). On the VM, runtime configuration is mounted at absolute `/config/`: `<team>.config`, `kubeconfig`, `vss-cli-secret.yaml`, and `backend-secret.yaml`. Keep credentials outside this repository.
 
@@ -12,7 +12,6 @@ Open this repo in Cursor so agents discover skills under [`.cursor/skills/`](.cu
 |------|---------|
 | **Ingest** | Upload a new video, or re-ingest existing indexed videos/chunks |
 | **Retrieval** | Search, browse, and ask questions over indexed video via the backend API |
-| **DataEngine** | Build/register pipeline functions, triggers, secrets (`vastde`) |
 | **Deployment** | Deploy retrieval K8s apps, check health, or ship a hackathon mini-app without Docker/registry |
 | **GPU** | Health-check and smoke-test Cosmos / YOLO model endpoints |
 
@@ -26,7 +25,7 @@ See [`.cursor/README.md`](.cursor/README.md) for the full list, links, and typic
 
 **Retrieval:** [login](.cursor/skills/retrieval/login/SKILL.md) · [search](.cursor/skills/retrieval/search/SKILL.md) · [list-metadata](.cursor/skills/retrieval/list-metadata/SKILL.md) · [dashboard](.cursor/skills/retrieval/dashboard/SKILL.md) · [suggest-prompts](.cursor/skills/retrieval/suggest-prompts/SKILL.md) · [videos](.cursor/skills/retrieval/videos/SKILL.md) · [agent-qa](.cursor/skills/retrieval/agent-qa/SKILL.md) · [vastdb-read](.cursor/skills/retrieval/vastdb-read/SKILL.md)
 
-**DataEngine:** [dataengine-components](.cursor/skills/dataengine-components/README.md) · **Deployment:** [deployment](.cursor/skills/deployment/README.md) · **GPU:** [gpu](.cursor/skills/gpu/README.md)
+**Deployment:** [deployment](.cursor/skills/deployment/README.md) · **GPU:** [gpu](.cursor/skills/gpu/README.md)
 
 ## Quick start
 
