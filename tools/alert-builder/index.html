@@ -11,7 +11,9 @@
   var path = location.pathname;
   if (path.endsWith('index.html')) path = path.slice(0, -'index.html'.length);
   window.BASE = path.endsWith('/') ? path : path + '/';
-  document.write('<link rel="stylesheet" href="' + window.BASE + 'styles.css">');
+  // Another app used to serve /app/app.js; the version query keeps browsers from reusing its cached files.
+  window.ASSET_V = 'watchtower-2';
+  document.write('<link rel="stylesheet" href="' + window.BASE + 'styles.css?v=' + window.ASSET_V + '">');
 })();
 </script>
 </head>
@@ -113,7 +115,7 @@
 </div>
 
 <script>
-document.write('<script src="' + window.BASE + 'app.js"><' + '/script>');
+document.write('<script src="' + window.BASE + 'app.js?v=' + window.ASSET_V + '"><' + '/script>');
 </script>
 </body>
 </html>
