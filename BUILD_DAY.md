@@ -47,8 +47,7 @@ Form your team and sit together first, decide on who's launching a VM before
 selecting your assigned team number.
 
 > ⚠️ **IMPORTANT:** First create a team if you haven't. If you are on a team and waiting
-> to be assigned a team number, <a href="https://forms.gle/Jj1XhmsUyRez4LGR7" target="_blank" rel="noopener">fill out this form</a>, then check in with
-> tokens&.
+> to be assigned a team number, form your team through tokens&'s Discord.
 >
 > Ensure you select the assigned team (e.g. `team-1`) so all team members access
 > the same video ingestion pipeline.
