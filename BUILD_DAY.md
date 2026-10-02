@@ -31,18 +31,26 @@ serving. You build something cool that searches and acts.
 <a href="https://community.vastdata.com/t/about-the-workshop-category/1969?utm_campaign=event26-builders-challenge" target="_blank" rel="noopener">Visit and join Cosmos</a> to access the VM and ask questions! 
 
 To load the VM, click on `Open Desktop`:
+
+> 💡 We'll share the passcode during the event.
+
 <p align="center"><img src="docs/images/vm-load.png" alt="The VM link on the VAST workshop home page" width="90%"></p>
 
-
-> 💡 All commands run on the workshop VM via the terminal in your browser. Nothing runs on your laptop.
-
-Wait for the VM to load. That's it. You're in! No setup. Nothing to install, no config to paste :) 
+**All commands run on the workshop VM via the terminal in your browser. Nothing runs on your laptop.**
 
 ### Your team
-> ⚠️ **IMPORTANT: Ensure you select the assigned team (e.g. `team-1`) so each team members accesses the same video ingestion pipeline.**
+We want to make sure everyone can access the environment, so VM connections per team are
+limited. Form your team and sit together first, decide on who's launching a VM before
+selecting your assigned team number.
+
+> ⚠️ **IMPORTANT: Ensure you select the assigned team (e.g. `team-1`) so all team members access the same video ingestion pipeline.**
+
+<p align="center"><img src="docs/images/team-select.png" alt="Please select your team: choose the team number you were assigned, you can only do this once" width="90%"></p>
 
 You build as a team. Your team shares one video ingestion instance, one index, and one set of
 credentials, so anything a teammate ingests shows up in every team members searches.
+
+Wait for the VM to load. That's it. You're in! No setup. Nothing to install, no config to paste :) 
 
 ### Coding Agent
 
