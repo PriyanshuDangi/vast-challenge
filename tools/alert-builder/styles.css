@@ -343,7 +343,7 @@ textarea:focus { border-color: rgba(255, 176, 32, 0.65); outline: none; }
 .center { display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; }
 .wall {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   min-height: 0;
   padding: 0 8px 8px;
@@ -573,7 +573,11 @@ textarea:focus { border-color: rgba(255, 176, 32, 0.65); outline: none; }
   border-radius: 7px;
   padding: 4px 6px;
 }
-.ctrl-row { display: flex; gap: 4px; align-items: center; min-width: 0; }
+.ctrl-row { display: flex; gap: 6px; align-items: center; min-width: 0; }
+.stream-pick { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.stream-pick .vsel { flex: 1 1 auto; font-size: 13px; padding: 6px 8px; }
+.tile .controls { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tile .controls .stream-pick { flex: 1 1 320px; min-width: 0; }
 .ctrl-row button { flex: 0 0 auto; }
 .jump-full { width: 100%; }
 .ctrl-row label {

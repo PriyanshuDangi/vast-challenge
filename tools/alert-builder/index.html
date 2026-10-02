@@ -12,7 +12,7 @@
   if (path.endsWith('index.html')) path = path.slice(0, -'index.html'.length);
   window.BASE = path.endsWith('/') ? path : path + '/';
   // Another app used to serve /app/app.js; the version query keeps browsers from reusing its cached files.
-  window.ASSET_V = 'watchtower-4';
+  window.ASSET_V = 'watchtower-5';
   document.write('<link rel="stylesheet" href="' + window.BASE + 'styles.css?v=' + window.ASSET_V + '">');
 })();
 </script>
@@ -33,7 +33,7 @@
   <div class="status-pills" id="status-pills" aria-live="polite"></div>
   <div class="top-actions">
     <button type="button" id="mute-btn" class="ghost" aria-pressed="false" title="Mute alert sound">Mute</button>
-    <button type="button" id="reset-btn" class="ghost" title="Clear incidents and restart every tile">Demo reset</button>
+    <button type="button" id="reset-btn" class="ghost" title="Clear alerts and restart the stream">Demo reset</button>
   </div>
 </header>
 
@@ -62,8 +62,8 @@
 
   <section class="center" aria-labelledby="wall-heading">
     <div class="wall-head">
-      <h2 id="wall-heading">Camera wall</h2>
-      <p>Archived footage, replayed live</p>
+      <h2 id="wall-heading">Live stream</h2>
+      <p>Archived footage replayed as a live feed · each clip is checked as it plays</p>
     </div>
     <div id="wall-empty" class="empty wall-empty" hidden></div>
     <div id="wall" class="wall"></div>

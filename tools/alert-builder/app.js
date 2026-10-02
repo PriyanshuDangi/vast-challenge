@@ -12,8 +12,6 @@ var state = {
   rules: [],
   incidents: [],
   incidentsReady: false,
-  backfillRuns: [],
-  ruleBackfill: {},
   muted: false,
   audioCtx: null,
   logCount: 0,
@@ -169,60 +167,6 @@ function logLine(parts) {
   els.logCount.textContent = String(Math.min(200, state.logCount));
 }
 
-function backfillSentence(bf) {
-  var n = bf && bf.matched != null ? bf.matched : 0;
-  var m = bf && bf.checked != null ? bf.checked : 0;
-  return 'Would have fired ' + n + ' times in the archive (checked ' + m + ' clips)';
-}
-
-function persistBackfill() {
-  try {
-    sessionStorage.setItem('wt-backfill', JSON.stringify({
-      ruleBackfill: state.ruleBackfill,
-      backfillRuns: state.backfillRuns
-    }));
-  } catch (e) { /* private mode */ }
-}
-
-function restoreBackfill() {
-  try {
-    var raw = sessionStorage.getItem('wt-backfill');
-    if (!raw) return;
-    var data = JSON.parse(raw);
-    if (data && data.ruleBackfill) state.ruleBackfill = data.ruleBackfill;
-    if (data && Array.isArray(data.backfillRuns)) state.backfillRuns = data.backfillRuns;
-  } catch (e) { /* ignore */ }
-}
-
-function rememberBackfill(rule, bf) {
-  var hits = bf && Array.isArray(bf.hits) ? bf.hits : [];
-  state.ruleBackfill[rule.id] = {
-    checked: bf.checked,
-    matched: bf.matched,
-    sentence: backfillSentence(bf)
-  };
-  state.backfillRuns.push({
-    ruleId: rule.id,
-    ruleName: rule.name || rule.id,
-    at: Date.now(),
-    hits: hits
-  });
-  persistBackfill();
-  tiles.forEach(updateJump);
-}
-
-function hitsForVideo(originalVideo) {
-  var best = null;
-  state.backfillRuns.forEach(function (run) {
-    var relevant = (run.hits || []).filter(function (h) {
-      return h && h.original_video === originalVideo && h.matched === true;
-    });
-    if (!relevant.length) return;
-    if (!best || run.at > best.at) best = { at: run.at, hits: relevant };
-  });
-  return best ? best.hits : [];
-}
-
 function scopeLabel(rule) {
   var cams = rule.cameras || [];
   var locs = rule.locations || [];
@@ -283,14 +227,7 @@ function renderRules() {
       'aria-label': (rule.enabled ? 'Disable ' : 'Enable ') + (rule.name || 'rule'),
       onclick: function () { toggleRule(rule); }
     }, el('i'));
-    var bf = state.ruleBackfill[rule.id];
     var actions = el('div', { class: 'rule-actions' },
-      el('button', {
-        type: 'button',
-        class: 'tiny',
-        text: 'Re-run backfill',
-        onclick: function (ev) { rerunBackfill(rule, ev.currentTarget); }
-      }),
       el('button', {
         type: 'button',
         class: 'tiny danger-text',
@@ -303,7 +240,6 @@ function renderRules() {
       el('div', { class: 'rule-text', text: rule.text || '' }),
       actions
     );
-    if (bf && bf.sentence) body.appendChild(el('p', { class: 'bf-line', text: bf.sentence }));
     var card = el('article', { class: 'rule' + (rule.enabled ? '' : ' off') }, sw, body);
     els.rulesList.appendChild(card);
   });
@@ -347,36 +283,6 @@ function deleteRule(rule) {
   });
 }
 
-function rerunBackfill(rule, btn) {
-  setBusy(btn, true, 'Running…');
-  api('api/rules/' + encodeURIComponent(rule.id) + '/backfill', {
-    method: 'POST',
-    body: { limit: 40 }
-  }).then(function (bf) {
-    rememberBackfill(rule, bf);
-    els.activateResult.hidden = false;
-    els.activateResult.textContent = backfillSentence(bf);
-    logBackfill(rule, bf);
-    absorbIncidents(bf.incidents || [], false);
-    refreshIncidents();
-    renderRules();
-  }).catch(function (err) {
-    toast(err.message, 'error');
-  }).then(function () {
-    setBusy(btn, false);
-  });
-}
-
-function logBackfill(rule, bf) {
-  logLine({
-    kind: 'info',
-    time: nowHMS(),
-    mid: '  backfill  ' + (rule.name || rule.id) + '  │ ',
-    outcome: backfillSentence(bf),
-    outcomeClass: 'ok'
-  });
-}
-
 function loadRules() {
   return api('api/rules').then(function (rules) {
     state.rules = Array.isArray(rules) ? rules : [];
@@ -404,24 +310,13 @@ function activateRule() {
   if (!text) { toast('Type a rule first.', 'error'); return; }
   setBusy(els.activateBtn, true, 'Compiling…');
   els.previewBtn.disabled = true;
-  var saved = null;
   api('api/rules', { method: 'POST', body: { text: text } }).then(function (rule) {
-    saved = rule;
-    return loadRules().catch(function () {});
-  }).then(function () {
-    if (!saved || !saved.id) throw new Error('Activate did not return a rule id');
-    setBusy(els.activateBtn, true, 'Searching archive…');
-    return api('api/rules/' + encodeURIComponent(saved.id) + '/backfill', {
-      method: 'POST',
-      body: { limit: 40 }
-    });
-  }).then(function (bf) {
-    rememberBackfill(saved, bf);
+    if (!rule || !rule.id) throw new Error('Activate did not return a rule id');
+    els.ruleText.value = '';
+    els.preview.hidden = true;
     els.activateResult.hidden = false;
-    els.activateResult.textContent = backfillSentence(bf);
-    logBackfill(saved, bf);
-    absorbIncidents(bf.incidents || [], false);
-    refreshIncidents();
+    els.activateResult.textContent = '“' + (rule.name || 'Rule') + '” is armed. Play the stream to watch for it.';
+    logLine({ kind: 'info', time: nowHMS(), mid: '  rule armed  ' + (rule.name || rule.id) });
     return loadRules();
   }).catch(function (err) {
     toast(err.message, 'error');
@@ -434,8 +329,13 @@ function activateRule() {
 
 var incidentEpoch = 0;
 
+function liveOnly(items) {
+  return (items || []).filter(function (inc) { return inc && inc.mode !== 'backfill'; });
+}
+
 function absorbIncidents(items, notify) {
-  if (!items || !items.length) return;
+  items = liveOnly(items);
+  if (!items.length) return;
   var prev = {};
   state.incidents.forEach(function (inc) { prev[inc.id] = true; });
   var fresh = [];
@@ -472,7 +372,7 @@ function renderIncidents(fresh) {
   els.incidents.replaceChildren();
   renderTimelines();
   if (!state.incidents.length) {
-    els.incidents.appendChild(el('div', { class: 'empty', text: 'All quiet. Activate a rule and press play.' }));
+    els.incidents.appendChild(el('div', { class: 'empty', text: 'All quiet. Arm a rule, pick a stream and press play — alerts appear here as they happen.' }));
     return;
   }
   state.incidents.forEach(function (inc) {
@@ -541,7 +441,7 @@ function refreshIncidents() {
   var epoch = incidentEpoch;
   return api('api/incidents').then(function (list) {
     if (epoch !== incidentEpoch) return;
-    var items = Array.isArray(list) ? list : [];
+    var items = liveOnly(Array.isArray(list) ? list : []);
     var prev = {};
     state.incidents.forEach(function (inc) { if (inc && inc.id) prev[inc.id] = true; });
     var notify = state.incidentsReady;
@@ -696,68 +596,26 @@ function pollStatus() {
   });
 }
 
-function groupVideos(videos) {
-  var groups = [];
-  var index = {};
-  videos.forEach(function (v) {
-    var label = (v.camera_id || 'unknown') + ' · ' + (v.location || 'unknown');
-    if (!index[label]) {
-      index[label] = [];
-      groups.push({ label: label, items: index[label] });
-    }
-    index[label].push(v);
-  });
-  return groups;
+function streamLabel(v) {
+  var where = String(v.location || 'unknown').replace(/_/g, ' ');
+  var kind = v.capture_type ? ' · ' + v.capture_type : '';
+  var n = v.total_segments != null ? ' · ' + v.total_segments + ' clips' : '';
+  return where.charAt(0).toUpperCase() + where.slice(1) + kind + ' — ' + (v.camera_id || 'camera') + n;
 }
 
-function pickDefaults(videos) {
-  var prefs = ['warehouse', 'pie', 'i24'];
-  var used = {};
-  var picks = [];
-  prefs.forEach(function (pref) {
-    var found = videos.find(function (v) {
-      return !used[v.original_video] && String(v.camera_id || '').toLowerCase().indexOf(pref) !== -1;
-    });
-    if (found) {
-      picks.push(found);
-      used[found.original_video] = true;
-    }
-  });
-  videos.forEach(function (v) {
-    if (picks.length >= 3) return;
-    if (used[v.original_video]) return;
-    if (picks.some(function (p) { return p.camera_id === v.camera_id; })) return;
-    picks.push(v);
-    used[v.original_video] = true;
-  });
-  videos.forEach(function (v) {
-    if (picks.length >= 3) return;
-    if (used[v.original_video]) return;
-    picks.push(v);
-    used[v.original_video] = true;
-  });
-  var n = 0;
-  while (picks.length < 3 && videos.length) {
-    picks.push(videos[n % videos.length]);
-    n += 1;
-  }
-  return picks.slice(0, 3);
+function streams() {
+  var feeds = state.videos.filter(isFeed);
+  return feeds.length ? feeds : state.videos;
 }
 
-function fillSelect(select, videos, selected) {
+function fillSelect(select, selected) {
   select.replaceChildren();
-  groupVideos(videos).forEach(function (g) {
-    var og = el('optgroup', { label: g.label });
-    g.items.forEach(function (v) {
-      var name = v.filename || v.camera_id || v.original_video;
-      var opt = el('option', {
-        value: v.original_video,
-        text: name + (v.total_segments != null ? ' · ' + v.total_segments + ' seg' : ''),
-        title: v.original_video
-      });
-      og.appendChild(opt);
-    });
-    select.appendChild(og);
+  streams().forEach(function (v) {
+    select.appendChild(el('option', {
+      value: v.original_video,
+      text: isFeed(v) ? streamLabel(v) : (v.filename || v.original_video),
+      title: v.original_video
+    }));
   });
   if (selected) select.value = selected;
 }
@@ -765,7 +623,7 @@ function fillSelect(select, videos, selected) {
 function buildTiles() {
   els.wall.replaceChildren();
   tiles = [];
-  for (var i = 0; i < 3; i++) tiles.push(createTile(i));
+  tiles.push(createTile(0));
 }
 
 function createTile(index) {
@@ -791,13 +649,11 @@ function createTile(index) {
   );
   var marks = el('div', { class: 'tl-marks' });
   var cursor = el('div', { class: 'tl-cursor' });
-  var timeline = el('div', { class: 'timeline', title: 'Click to seek · red marks are alerts' },
+  var timeline = el('div', { class: 'timeline', title: 'Click to seek · marks are alerts raised so far' },
     el('div', { class: 'tl-track' }), marks, cursor);
-  var select = el('select', { class: 'vsel', 'aria-label': 'Camera ' + (index + 1) });
+  var select = el('select', { class: 'vsel', 'aria-label': 'Stream' });
   var playBtn = el('button', { type: 'button', class: 'tiny play', text: 'Play' });
   var stepBtn = el('button', { type: 'button', class: 'tiny', text: 'Step' });
-  var jumpBtn = el('button', { type: 'button', class: 'tiny jump', text: 'Jump to next event', disabled: true });
-  var start = el('input', { class: 'start', type: 'number', min: '0', step: '1', value: '0', 'aria-label': 'Start segment' });
   var pace = el('select', { class: 'pace', 'aria-label': 'Playback speed' });
   [1, 2, 4].forEach(function (n) {
     var opt = el('option', { value: String(n), text: n + '×' });
@@ -805,15 +661,12 @@ function createTile(index) {
     pace.appendChild(opt);
   });
   var controls = el('div', { class: 'controls' },
-    select,
-    el('div', { class: 'ctrl-row' }, playBtn, stepBtn),
-    jumpBtn,
+    el('label', { class: 'stream-pick' }, 'Stream', select),
     el('div', { class: 'ctrl-row' },
-      el('label', {}, 'Start', start),
+      playBtn, stepBtn,
       el('label', {}, 'Speed', pace)
     )
   );
-  jumpBtn.classList.add('jump-full');
   var root = el('article', { class: 'tile idle' }, screen, timeline, controls);
   els.wall.appendChild(root);
   var tile = {
@@ -838,8 +691,6 @@ function createTile(index) {
     select: select,
     playBtn: playBtn,
     stepBtn: stepBtn,
-    jumpBtn: jumpBtn,
-    startInput: start,
     pace: pace,
     video: null,
     segments: [],
@@ -857,9 +708,7 @@ function createTile(index) {
   };
   playBtn.addEventListener('click', function () { toggleTile(tile); });
   stepBtn.addEventListener('click', function () { stepTile(tile); });
-  jumpBtn.addEventListener('click', function () { jumpTile(tile); });
   select.addEventListener('change', function () { onSelectVideo(tile); });
-  start.addEventListener('change', function () { applyStart(tile); });
   pace.addEventListener('change', function () {
     tile.rate = Number(pace.value) || 1;
     videoEl.playbackRate = tile.rate;
@@ -892,11 +741,11 @@ function loadVideos() {
       return;
     }
     showWall();
-    var picks = pickDefaults(state.videos);
-    tiles.forEach(function (tile, i) {
-      var pick = picks[i];
-      fillSelect(tile.select, state.videos, pick ? pick.original_video : '');
-      if (pick) loadSegments(tile, pick.original_video, false);
+    var list = streams();
+    var pick = list.find(function (v) { return /warehouse/i.test(v.camera_id || ''); }) || list[0];
+    tiles.forEach(function (tile) {
+      fillSelect(tile.select, pick.original_video);
+      loadSegments(tile, pick.original_video, false);
     });
   }).catch(function (err) {
     showWallEmpty('No footage in the index. The archive may be empty, or the backend is down. ' + err.message);
@@ -926,17 +775,12 @@ function loadSegments(tile, originalVideo, keepPlaying) {
     if (!tile.segments.length) {
       tile.camLoc.textContent = 'No segments';
       showFallback(tile, null, 'This clip has no segments.');
-      updateJump(tile);
       return;
     }
-    var want = Number(tile.startInput.value);
-    var idx = startIndex(tile, want);
-    if (idx < 0) idx = 0;
-    tile.pos = idx;
-    tile.startInput.value = String(startValue(tile, idx));
+    tile.pos = 0;
+    tile.alert = null;
     renderTimeline(tile);
     display(tile);
-    updateJump(tile);
     if (keepPlaying) ensureLoop(tile);
   }).catch(function (err) {
     if (gen !== tile.loadGen) return;
@@ -958,17 +802,9 @@ function display(tile) {
   paintCounts(tile, seg && seg.object_counts);
   tile.ticker.textContent = (seg && seg.caption) || '';
   setStream(tile, seg);
-  var known = seg && incidentIndex()[seg.source];
-  if (known) {
-    var fresh = !tile.alert || tile.alert.source !== seg.source;
-    armAlert(tile, known.severity, known.rule_name, known.reason, seg.source);
-    if (fresh && tile.playing) beep();
-  } else if (tile.alert && (!seg || tile.alert.source !== seg.source)) {
-    tile.alert = null;
-  }
+  if (tile.alert && (!seg || tile.alert.source !== seg.source)) tile.alert = null;
   paintTile(tile);
   paintCursor(tile);
-  updateJump(tile);
 }
 
 function incidentIndex() {
@@ -1002,7 +838,6 @@ function renderTimeline(tile) {
 function renderTimelines() {
   if (typeof tiles === 'undefined' || !tiles) return;
   tiles.forEach(renderTimeline);
-  tiles.forEach(function (tile) { if (tile.segments.length) display(tile); });
 }
 
 function paintCursor(tile) {
@@ -1102,75 +937,8 @@ function armAlert(tile, severity, ruleName, reason, source) {
   paintTile(tile);
 }
 
-function applyStart(tile) {
-  if (!tile.segments.length) return;
-  var n = Number(tile.startInput.value);
-  var idx = startIndex(tile, n);
-  if (idx < 0) {
-    toast('No segment ' + tile.startInput.value + ' on this camera.', 'error');
-    var cur = currentSeg(tile);
-    tile.startInput.value = String(startValue(tile, tile.pos));
-    return;
-  }
-  tile.pos = idx;
-  tile.gen += 1;
-  display(tile);
-  wake(tile);
-}
-
-function startIndex(tile, n) {
-  if (isFeed(tile.video)) return Number.isInteger(n) && n >= 0 && n < tile.segments.length ? n : -1;
-  return tile.segments.findIndex(function (s) { return s.segment_number === n; });
-}
-
-function startValue(tile, idx) {
-  if (isFeed(tile.video)) return idx;
-  var seg = tile.segments[idx];
-  return seg ? seg.segment_number : 0;
-}
-
 function isFeed(video) {
   return !!video && String(video.original_video || '').indexOf('camera:') === 0;
-}
-
-function matchedHitKeys() {
-  var keys = {};
-  state.backfillRuns.forEach(function (run) {
-    (run.hits || []).forEach(function (h) {
-      if (h && h.matched === true) keys[h.original_video + '#' + h.segment_number] = true;
-    });
-  });
-  return keys;
-}
-
-function nextEventPos(tile) {
-  if (!tile.video || !tile.segments.length) return null;
-  var keys = matchedHitKeys();
-  var known = incidentIndex();
-  var fallback = tile.video.original_video;
-  var idxs = [];
-  tile.segments.forEach(function (s, i) {
-    if (known[s.source] || keys[(s.original_video || fallback) + '#' + s.segment_number]) idxs.push(i);
-  });
-  if (!idxs.length) return null;
-  var target = idxs.find(function (i) { return i - 1 > tile.pos; });
-  if (target == null) target = idxs[0];
-  return Math.max(0, target - 1);
-}
-
-function updateJump(tile) {
-  var pos = nextEventPos(tile);
-  tile.jumpBtn.disabled = pos == null;
-}
-
-function jumpTile(tile) {
-  var idx = nextEventPos(tile);
-  if (idx == null) return;
-  tile.pos = idx;
-  tile.gen += 1;
-  display(tile);
-  wake(tile);
-  if (tile.playing) ensureLoop(tile);
 }
 
 function stepTile(tile) {
@@ -1394,10 +1162,7 @@ function resetTile(tile) {
     paintTile(tile);
     return;
   }
-  var n = Number(tile.startInput.value);
-  var idx = startIndex(tile, n);
-  if (idx < 0) idx = 0;
-  tile.pos = idx;
+  tile.pos = 0;
   display(tile);
   paintTile(tile);
 }
@@ -1514,7 +1279,6 @@ function boot() {
   };
   bindChrome();
   buildTiles();
-  restoreBackfill();
   renderRules();
   renderIncidents([]);
   pollStatus();

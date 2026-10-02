@@ -105,18 +105,6 @@ fi
 
 render_workload() {
   cat <<EOF
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: ${APP_NAME}-data
-  labels:
-    app: ${APP_NAME}
-spec:
-  accessModes: ["ReadWriteOnce"]
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -125,8 +113,6 @@ metadata:
     app: ${APP_NAME}
 spec:
   replicas: 1
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: ${APP_NAME}
@@ -148,14 +134,12 @@ spec:
         - name: PORT
           value: "${APP_PORT}"
         - name: DATA_DIR
-          value: "/data"
+          value: "/tmp/alert-builder"
         - name: PYTHONUNBUFFERED
           value: "1"
         volumeMounts:
         - name: code
           mountPath: /code
-        - name: data
-          mountPath: /data
         workingDir: /code
         command: ["bash", "-c"]
         args:
@@ -171,9 +155,6 @@ spec:
       - name: code
         configMap:
           name: ${APP_NAME}-code
-      - name: data
-        persistentVolumeClaim:
-          claimName: ${APP_NAME}-data
 ---
 apiVersion: v1
 kind: Service
