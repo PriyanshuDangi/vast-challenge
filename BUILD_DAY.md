@@ -28,7 +28,11 @@ serving. You build something cool that searches and acts.
 
 ## 2. Launch VM
 
-<a href="https://community.vastdata.com/t/about-the-workshop-category/1969?utm_campaign=event26-builders-challenge" target="_blank" rel="noopener">Visit and join Cosmos</a> to access the VM and ask questions! 
+> 💡 We want to make sure everyone can access the environment, so VM connections per team
+> are limited: max 2 people per team can launch a VM. If two teammates already have a VM
+> running, follow along with them.
+
+<a href="https://community.vastdata.com/t/about-the-workshop-category/1969?utm_campaign=event26-builders-challenge" target="_blank" rel="noopener">Visit and join Cosmos</a> to ask questions and access the VM! 
 
 To load the VM, click on `Open Desktop`:
 
@@ -39,8 +43,7 @@ To load the VM, click on `Open Desktop`:
 **All commands run on the workshop VM via the terminal in your browser. Nothing runs on your laptop.**
 
 ### Your team
-We want to make sure everyone can access the environment, so VM connections per team are
-limited. Form your team and sit together first, decide on who's launching a VM before
+Form your team and sit together first, decide on who's launching a VM before
 selecting your assigned team number.
 
 > ⚠️ **IMPORTANT: Ensure you select the assigned team (e.g. `team-1`) so all team members access the same video ingestion pipeline.**
