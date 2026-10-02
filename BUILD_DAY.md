@@ -46,7 +46,12 @@ To load the VM, click on `Open Desktop`:
 Form your team and sit together first, decide on who's launching a VM before
 selecting your assigned team number.
 
-> ⚠️ **IMPORTANT: Ensure you select the assigned team (e.g. `team-1`) so all team members access the same video ingestion pipeline.**
+> ⚠️ **IMPORTANT:** First create a team if you haven't. If you are on a team and waiting
+> to be assigned a team number, <a href="https://forms.gle/Jj1XhmsUyRez4LGR7" target="_blank" rel="noopener">fill out this form</a>, then check in with
+> tokens&.
+>
+> Ensure you select the assigned team (e.g. `team-1`) so all team members access
+> the same video ingestion pipeline.
 
 <p align="center"><img src="docs/images/team-select.png" alt="Please select your team: choose the team number you were assigned, you can only do this once" width="90%"></p>
 
