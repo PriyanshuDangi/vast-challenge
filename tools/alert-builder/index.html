@@ -12,7 +12,7 @@
   if (path.endsWith('index.html')) path = path.slice(0, -'index.html'.length);
   window.BASE = path.endsWith('/') ? path : path + '/';
   // Another app used to serve /app/app.js; the version query keeps browsers from reusing its cached files.
-  window.ASSET_V = 'watchtower-2';
+  window.ASSET_V = 'watchtower-4';
   document.write('<link rel="stylesheet" href="' + window.BASE + 'styles.css?v=' + window.ASSET_V + '">');
 })();
 </script>

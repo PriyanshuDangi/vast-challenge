@@ -351,7 +351,7 @@ function rerunBackfill(rule, btn) {
   setBusy(btn, true, 'Running…');
   api('api/rules/' + encodeURIComponent(rule.id) + '/backfill', {
     method: 'POST',
-    body: { limit: 12 }
+    body: { limit: 40 }
   }).then(function (bf) {
     rememberBackfill(rule, bf);
     els.activateResult.hidden = false;
@@ -413,7 +413,7 @@ function activateRule() {
     setBusy(els.activateBtn, true, 'Searching archive…');
     return api('api/rules/' + encodeURIComponent(saved.id) + '/backfill', {
       method: 'POST',
-      body: { limit: 12 }
+      body: { limit: 40 }
     });
   }).then(function (bf) {
     rememberBackfill(saved, bf);
@@ -470,6 +470,7 @@ function renderIncidents(fresh) {
   });
   els.incCount.textContent = String(state.incidents.length);
   els.incidents.replaceChildren();
+  renderTimelines();
   if (!state.incidents.length) {
     els.incidents.appendChild(el('div', { class: 'empty', text: 'All quiet. Activate a rule and press play.' }));
     return;
@@ -494,13 +495,46 @@ function renderIncidents(fresh) {
       el('div', { class: 'inc-reason', text: inc.reason || '' }),
       tags
     );
-    var card = el('button', {
-      type: 'button',
-      class: 'incident sev-' + sev + (freshIds[inc.id] ? ' enter' : ''),
-      onclick: function () { openModal(inc); }
-    }, el('span', { class: 'strip', 'aria-hidden': 'true' }), body);
+    var card = el('div', { class: 'incident sev-' + sev + (freshIds[inc.id] ? ' enter' : '') },
+      el('span', { class: 'strip', 'aria-hidden': 'true' }),
+      el('button', {
+        type: 'button',
+        class: 'inc-main',
+        title: 'Play this moment on the camera wall',
+        onclick: function () { playIncident(inc); }
+      }, body),
+      el('button', {
+        type: 'button',
+        class: 'inc-report',
+        text: 'Report',
+        onclick: function () { openModal(inc); }
+      })
+    );
     els.incidents.appendChild(card);
   });
+}
+
+function playIncident(inc) {
+  if (!tiles.length) return;
+  var cam = inc.camera_id;
+  var hasClip = function (t) { return t.segments.some(function (s) { return s.source === inc.source; }); };
+  var tile = tiles.find(hasClip)
+    || tiles.find(function (t) { return t.video && t.video.camera_id === cam; })
+    || tiles[0];
+  var seek = function () {
+    var idx = tile.segments.findIndex(function (s) { return s.source === inc.source; });
+    if (idx < 0) { toast('That clip is not on this camera feed.', 'error'); return; }
+    seekTile(tile, idx);
+    tile.root.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (!tile.playing) playTile(tile);
+  };
+  if (hasClip(tile)) { seek(); return; }
+  var feed = 'camera:' + cam;
+  var target = state.videos.some(function (v) { return v.original_video === feed; }) ? feed : inc.original_video;
+  tile.select.value = target;
+  tile.gen += 1;
+  wake(tile);
+  loadSegments(tile, target, false).then(seek);
 }
 
 function refreshIncidents() {
@@ -735,7 +769,7 @@ function buildTiles() {
 }
 
 function createTile(index) {
-  var videoEl = el('video', { muted: true, autoplay: true, playsinline: true, loop: true });
+  var videoEl = el('video', { muted: true, autoplay: true, playsinline: true });
   videoEl.muted = true;
   videoEl.playsInline = true;
   var fallback = el('div', { class: 'fallback', hidden: true });
@@ -747,21 +781,27 @@ function createTile(index) {
   var ticker = el('div', { class: 'ov ticker' });
   var badge = el('div', { class: 'sev-badge' });
   var banner = el('div', { class: 'rule-banner' });
-  var plate = el('div', { class: 'alert-plate', hidden: true }, badge, banner);
+  var reasonEl = el('div', { class: 'alert-reason' });
+  var plate = el('div', { class: 'alert-plate', hidden: true },
+    el('div', { class: 'alert-kicker', text: '⚠ ALERT' }), badge, banner, reasonEl);
   var screen = el('div', { class: 'screen' },
     videoEl, fallback,
     el('div', { class: 'ov ov-cam' }, camId, camLoc),
     clock, phase, yolo, ticker, plate
   );
+  var marks = el('div', { class: 'tl-marks' });
+  var cursor = el('div', { class: 'tl-cursor' });
+  var timeline = el('div', { class: 'timeline', title: 'Click to seek · red marks are alerts' },
+    el('div', { class: 'tl-track' }), marks, cursor);
   var select = el('select', { class: 'vsel', 'aria-label': 'Camera ' + (index + 1) });
   var playBtn = el('button', { type: 'button', class: 'tiny play', text: 'Play' });
   var stepBtn = el('button', { type: 'button', class: 'tiny', text: 'Step' });
   var jumpBtn = el('button', { type: 'button', class: 'tiny jump', text: 'Jump to next event', disabled: true });
   var start = el('input', { class: 'start', type: 'number', min: '0', step: '1', value: '0', 'aria-label': 'Start segment' });
-  var pace = el('select', { class: 'pace', 'aria-label': 'Seconds per segment' });
-  [2, 3, 4, 6].forEach(function (n) {
-    var opt = el('option', { value: String(n), text: String(n) });
-    if (n === 4) opt.selected = true;
+  var pace = el('select', { class: 'pace', 'aria-label': 'Playback speed' });
+  [1, 2, 4].forEach(function (n) {
+    var opt = el('option', { value: String(n), text: n + '×' });
+    if (n === 1) opt.selected = true;
     pace.appendChild(opt);
   });
   var controls = el('div', { class: 'controls' },
@@ -770,11 +810,11 @@ function createTile(index) {
     jumpBtn,
     el('div', { class: 'ctrl-row' },
       el('label', {}, 'Start', start),
-      el('label', {}, 'Sec/seg', pace)
+      el('label', {}, 'Speed', pace)
     )
   );
   jumpBtn.classList.add('jump-full');
-  var root = el('article', { class: 'tile idle' }, screen, controls);
+  var root = el('article', { class: 'tile idle' }, screen, timeline, controls);
   els.wall.appendChild(root);
   var tile = {
     index: index,
@@ -790,6 +830,11 @@ function createTile(index) {
     plate: plate,
     badge: badge,
     banner: banner,
+    reasonEl: reasonEl,
+    timeline: timeline,
+    marks: marks,
+    cursor: cursor,
+    rate: 1,
     select: select,
     playBtn: playBtn,
     stepBtn: stepBtn,
@@ -815,7 +860,16 @@ function createTile(index) {
   jumpBtn.addEventListener('click', function () { jumpTile(tile); });
   select.addEventListener('change', function () { onSelectVideo(tile); });
   start.addEventListener('change', function () { applyStart(tile); });
-  pace.addEventListener('change', function () { tile.seconds = Number(pace.value) || 4; });
+  pace.addEventListener('change', function () {
+    tile.rate = Number(pace.value) || 1;
+    videoEl.playbackRate = tile.rate;
+  });
+  timeline.addEventListener('click', function (ev) {
+    if (!tile.segments.length) return;
+    var box = timeline.getBoundingClientRect();
+    var frac = Math.min(0.999, Math.max(0, (ev.clientX - box.left) / box.width));
+    seekTile(tile, Math.floor(frac * tile.segments.length));
+  });
   return tile;
 }
 
@@ -880,6 +934,7 @@ function loadSegments(tile, originalVideo, keepPlaying) {
     if (idx < 0) idx = 0;
     tile.pos = idx;
     tile.startInput.value = String(startValue(tile, idx));
+    renderTimeline(tile);
     display(tile);
     updateJump(tile);
     if (keepPlaying) ensureLoop(tile);
@@ -903,8 +958,66 @@ function display(tile) {
   paintCounts(tile, seg && seg.object_counts);
   tile.ticker.textContent = (seg && seg.caption) || '';
   setStream(tile, seg);
+  var known = seg && incidentIndex()[seg.source];
+  if (known) {
+    var fresh = !tile.alert || tile.alert.source !== seg.source;
+    armAlert(tile, known.severity, known.rule_name, known.reason, seg.source);
+    if (fresh && tile.playing) beep();
+  } else if (tile.alert && (!seg || tile.alert.source !== seg.source)) {
+    tile.alert = null;
+  }
   paintTile(tile);
+  paintCursor(tile);
   updateJump(tile);
+}
+
+function incidentIndex() {
+  var best = {};
+  state.incidents.forEach(function (inc) {
+    if (!inc || !inc.source) return;
+    var cur = best[inc.source];
+    if (!cur || (Number(inc.severity) || 0) > (Number(cur.severity) || 0)) best[inc.source] = inc;
+  });
+  return best;
+}
+
+function renderTimeline(tile) {
+  tile.marks.replaceChildren();
+  var n = tile.segments.length;
+  if (!n) { paintCursor(tile); return; }
+  var index = incidentIndex();
+  tile.segments.forEach(function (seg, i) {
+    var inc = index[seg.source];
+    if (!inc) return;
+    var sev = Math.min(5, Math.max(1, Number(inc.severity) || 1));
+    tile.marks.appendChild(el('span', {
+      class: 'tl-mark sev-' + sev,
+      style: 'left:' + (i / n * 100) + '%;width:' + (100 / n) + '%',
+      title: 'SEV ' + sev + ' · ' + (inc.rule_name || 'Alert') + ' — ' + (inc.reason || '')
+    }));
+  });
+  paintCursor(tile);
+}
+
+function renderTimelines() {
+  if (typeof tiles === 'undefined' || !tiles) return;
+  tiles.forEach(renderTimeline);
+  tiles.forEach(function (tile) { if (tile.segments.length) display(tile); });
+}
+
+function paintCursor(tile) {
+  var n = tile.segments.length;
+  tile.cursor.hidden = !n;
+  if (n) tile.cursor.style.left = ((tile.pos + 0.5) / n * 100) + '%';
+}
+
+function seekTile(tile, idx) {
+  if (!tile.segments.length) return;
+  tile.pos = Math.min(tile.segments.length - 1, Math.max(0, idx));
+  tile.gen += 1;
+  display(tile);
+  wake(tile);
+  if (tile.playing) ensureLoop(tile);
 }
 
 function paintCounts(tile, counts) {
@@ -940,6 +1053,7 @@ function setStream(tile, seg) {
     tile.ticker.hidden = false;
   };
   video.src = url;
+  video.playbackRate = tile.rate || 1;
   var play = video.play();
   if (play && play.catch) play.catch(function () {});
 }
@@ -960,7 +1074,8 @@ function paintPlay(tile) {
 }
 
 function paintTile(tile) {
-  var alertOn = tile.alert && Date.now() < tile.alert.until;
+  var cur = currentSeg(tile);
+  var alertOn = !!(tile.alert && cur && tile.alert.source === cur.source);
   tile.root.classList.remove('idle', 'checking', 'judging', 'alert');
   var phase = alertOn ? 'alert' : tile.phase;
   tile.root.classList.add(phase);
@@ -968,6 +1083,8 @@ function paintTile(tile) {
   if (alertOn) {
     tile.badge.textContent = 'SEV ' + tile.alert.severity;
     tile.banner.textContent = tile.alert.ruleName || '';
+    tile.reasonEl.textContent = tile.alert.reason || '';
+    tile.reasonEl.hidden = !tile.alert.reason;
   }
   if (phase === 'checking') {
     tile.phaseTag.hidden = false;
@@ -980,10 +1097,8 @@ function paintTile(tile) {
   }
 }
 
-function armAlert(tile, severity, ruleName) {
-  tile.alert = { severity: severity, ruleName: ruleName, until: Date.now() + 6000 };
-  clearTimeout(tile.alertTimer);
-  tile.alertTimer = setTimeout(function () { paintTile(tile); }, 6100);
+function armAlert(tile, severity, ruleName, reason, source) {
+  tile.alert = { severity: severity, ruleName: ruleName, reason: reason || '', source: source };
   paintTile(tile);
 }
 
@@ -1031,15 +1146,16 @@ function matchedHitKeys() {
 function nextEventPos(tile) {
   if (!tile.video || !tile.segments.length) return null;
   var keys = matchedHitKeys();
+  var known = incidentIndex();
   var fallback = tile.video.original_video;
   var idxs = [];
   tile.segments.forEach(function (s, i) {
-    if (keys[(s.original_video || fallback) + '#' + s.segment_number]) idxs.push(i);
+    if (known[s.source] || keys[(s.original_video || fallback) + '#' + s.segment_number]) idxs.push(i);
   });
   if (!idxs.length) return null;
-  var target = idxs.find(function (i) { return i - 2 > tile.pos; });
+  var target = idxs.find(function (i) { return i - 1 > tile.pos; });
   if (target == null) target = idxs[0];
-  return Math.max(0, target - 2);
+  return Math.max(0, target - 1);
 }
 
 function updateJump(tile) {
@@ -1079,11 +1195,14 @@ function playTile(tile) {
   }
   tile.playing = true;
   paintPlay(tile);
+  var resume = tile.videoEl.play();
+  if (resume && resume.catch) resume.catch(function () {});
   ensureLoop(tile);
 }
 
 function pauseTile(tile) {
   tile.playing = false;
+  tile.videoEl.pause();
   paintPlay(tile);
   wake(tile);
 }
@@ -1179,8 +1298,23 @@ async function stepOnce(tile, gen, dwell) {
     }
   }
   if (!dwell || tile.gen !== gen || !tile.playing) return;
-  var left = tile.seconds * 1000 - (performance.now() - t0);
-  if (left > 0) await sleep(tile, left);
+  await dwellClip(tile, gen, t0);
+}
+
+async function dwellClip(tile, gen, t0) {
+  var rate = tile.rate || 1;
+  var minMs = 1500 / rate;
+  var fallbackMs = 5000 / rate;
+  var capMs = 15000 / rate;
+  while (tile.playing && tile.gen === gen) {
+    var elapsed = performance.now() - t0;
+    var v = tile.videoEl;
+    var done = v.hidden
+      ? elapsed >= fallbackMs
+      : (v.ended || (isFinite(v.duration) && v.duration > 0 && v.currentTime >= v.duration - 0.05));
+    if ((done && elapsed >= minMs) || elapsed >= capMs) return;
+    await sleep(tile, 200);
+  }
 }
 
 function applyEvalSideEffects(seg, data) {
@@ -1241,7 +1375,8 @@ function applyEvalVisual(tile, data) {
     matches.sort(function (a, b) { return (b.verdict.severity || 0) - (a.verdict.severity || 0); });
     var top = matches[0];
     tile.phase = 'idle';
-    armAlert(tile, top.verdict.severity || 1, top.rule_name || 'Alert');
+    var shown = currentSeg(tile);
+    armAlert(tile, top.verdict.severity || 1, top.rule_name || 'Alert', top.verdict.reason, shown && shown.source);
     return;
   }
   var passed = results.some(function (r) { return r.prefilter_pass; });
