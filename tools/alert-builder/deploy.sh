@@ -86,8 +86,9 @@ if [[ ${#PRESENT[@]} -eq 0 ]]; then
 fi
 
 SECRET_KEYS=(VSS_URL VSS_USERNAME VSS_PASSWORD WANDB_API_KEY WANDB_PROJECT_PATH)
+# The public INGRESS_URL host does not resolve inside the cluster; pods must use the backend Service.
 SECRET_ARGS=(
-  --from-literal="VSS_URL=${INGRESS_URL}"
+  --from-literal="VSS_URL=${VSS_IN_CLUSTER_URL:-http://video-backend-service:8000}"
   --from-literal="VSS_USERNAME=${USERNAME}"
   --from-literal="VSS_PASSWORD=${PASSWORD:-}"
   --from-literal="WANDB_API_KEY=${WANDB_API_KEY:-}"
@@ -178,6 +179,10 @@ metadata:
     app: ${APP_NAME}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /\$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
 spec:
   ingressClassName: nginx
   rules:
