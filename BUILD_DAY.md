@@ -84,7 +84,6 @@ Once it's running, set the model to Auto to save tokens:
 ```
 
 Here is a video overview of the steps from this section:
-
 [Watch the Launch VM walkthrough](https://github.com/user-attachments/assets/73eace1b-c4ca-42f7-a59f-5a6e77e34a93)
 
 > 💡 **Useful VM Keybindings.**
