@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Watchtower</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 L29 29 H3 Z' fill='%2307080b' stroke='%23ffb020' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='3' fill='%23ffb020'/%3E%3C/svg%3E">
+<script>
+(function () {
+  var path = location.pathname;
+  if (path.endsWith('index.html')) path = path.slice(0, -'index.html'.length);
+  window.BASE = path.endsWith('/') ? path : path + '/';
+  document.write('<link rel="stylesheet" href="' + window.BASE + 'styles.css">');
+})();
+</script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+      <path d="M16 2.5 L29 29 H3 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      <circle cx="16" cy="19" r="2.4" fill="currentColor"/>
+      <path d="M16 8 v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-text">
+      <h1>Watchtower</h1>
+      <p>Plain-English safety rules for your camera archive</p>
+    </div>
+  </div>
+  <div class="status-pills" id="status-pills" aria-live="polite"></div>
+  <div class="top-actions">
+    <button type="button" id="mute-btn" class="ghost" aria-pressed="false" title="Mute alert sound">Mute</button>
+    <button type="button" id="reset-btn" class="ghost" title="Clear incidents and restart every tile">Demo reset</button>
+  </div>
+</header>
+
+<main>
+  <section class="panel rules-panel" aria-labelledby="rules-heading">
+    <div class="panel-head">
+      <h2 id="rules-heading">Rule builder</h2>
+    </div>
+    <div class="composer">
+      <label class="sr" for="rule-text">Rule</label>
+      <textarea id="rule-text" rows="4" spellcheck="true" placeholder="Describe what should raise an alert…"></textarea>
+      <div class="examples" id="examples"></div>
+      <div class="composer-actions">
+        <button type="button" id="preview-btn" class="ghost">Preview</button>
+        <button type="button" id="activate-btn" class="primary">Activate</button>
+      </div>
+      <p id="activate-result" class="activate-result" hidden></p>
+      <div id="preview" class="preview" hidden></div>
+    </div>
+    <div class="subhead">
+      <h3>Active rules</h3>
+      <span id="rule-count" class="count">0</span>
+    </div>
+    <div id="rules-list" class="rules-list"></div>
+  </section>
+
+  <section class="center" aria-labelledby="wall-heading">
+    <div class="wall-head">
+      <h2 id="wall-heading">Camera wall</h2>
+      <p>Archived footage, replayed live</p>
+    </div>
+    <div id="wall-empty" class="empty wall-empty" hidden></div>
+    <div id="wall" class="wall"></div>
+  </section>
+
+  <section class="panel incidents-panel" aria-labelledby="inc-heading">
+    <div class="panel-head">
+      <h2 id="inc-heading">Incidents <span id="inc-count" class="count">0</span></h2>
+      <button type="button" id="clear-btn" class="ghost danger-text">Clear</button>
+    </div>
+    <div id="incidents" class="incidents"></div>
+  </section>
+</main>
+
+<footer class="log" id="log">
+  <div class="log-bar">
+    <button type="button" id="log-toggle" class="log-toggle" aria-expanded="true">
+      <span class="chev" aria-hidden="true">▾</span>
+      Decision log
+      <span id="log-count" class="count">0</span>
+    </button>
+    <span class="keys">Space play/pause · R rule</span>
+  </div>
+  <div id="log-body" class="log-body"></div>
+</footer>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-back" data-close="1"></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button type="button" id="modal-close" class="icon-x" aria-label="Close">×</button>
+    <div class="modal-grid">
+      <div class="modal-screen">
+        <video id="modal-video" muted autoplay playsinline controls loop></video>
+        <div id="modal-fallback" class="fallback" hidden></div>
+      </div>
+      <div class="modal-copy">
+        <div class="modal-kicker" id="modal-kicker"></div>
+        <h3 id="modal-title"></h3>
+        <div id="modal-meta" class="modal-meta"></div>
+        <div id="modal-report" class="report"></div>
+        <h4>Caption</h4>
+        <p id="modal-caption"></p>
+        <div id="modal-counts" class="count-row"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.write('<script src="' + window.BASE + 'app.js"><' + '/script>');
+</script>
+</body>
+</html>

@@ -42,6 +42,7 @@ Thumbs.db
 *.log
 tmp/
 resp.json
+.data/
 
 # --- organizer verification script (internal) ---
 verify-vm.sh
