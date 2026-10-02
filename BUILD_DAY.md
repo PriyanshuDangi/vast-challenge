@@ -66,9 +66,11 @@ Wait for the VM to load. That's it. You're in! No setup. Nothing to install, no 
 Describe what you want in plain language and let the code agent build. That's how the skills are meant to be used.
 To get started, sign in using the Cursor IDE:
 
+<!-- TEMP: video removed to test whether it was causing the page load issue
 <p align="center"><video src="https://github.com/user-attachments/assets/a77e2fb2-7ad1-49a8-b824-2af4ce1a58d5" controls width="90%">
   <a href="https://github.com/user-attachments/assets/a77e2fb2-7ad1-49a8-b824-2af4ce1a58d5">Watch how to sign in to Cursor</a>
 </video></p>
+-->
 
 > 💡 If Cursor asks you to sign in, use the personal email you applied to the Builders Challenge. Expect one or two tries; that's normal.
 
@@ -88,9 +90,11 @@ Once it's running, set the model to Auto to save tokens:
 
 Here is a video overview of the steps from this section:
 
+<!-- TEMP: video removed to test whether it was causing the page load issue
 <p align="center"><video src="https://github.com/user-attachments/assets/73eace1b-c4ca-42f7-a59f-5a6e77e34a93" controls width="90%">
   <a href="https://github.com/user-attachments/assets/73eace1b-c4ca-42f7-a59f-5a6e77e34a93">Watch the Launch VM walkthrough</a>
 </video></p>
+-->
 
 > 💡 **Useful VM Keybindings.**
 > - **Copy and paste.** In the terminal it's `Ctrl+Shift+C` and `Ctrl+Shift+V`
