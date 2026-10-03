@@ -2,9 +2,11 @@
 'use strict';
 
 var EXAMPLES = [
-  'Alert me when a person walks near a forklift',
-  'Alert me when a pedestrian steps into the road in front of the car',
-  'Alert me when a truck changes lanes in dense traffic'
+  { place: 'Warehouse', camera: 'sdg_warehouse_cam-2', text: 'Alert me when a person gets close to a moving forklift' },
+  { place: 'Indoor', camera: 'smartspace_cam-1', text: 'Alert me when a worker near pallets is not wearing a safety vest' },
+  { place: 'San Francisco', camera: 'sf_streets_cam-4', text: 'Alert me when pedestrians cross in front of moving traffic' },
+  { place: 'San Francisco', camera: 'sf_streets_cam-1', text: 'Alert me when a vehicle blocks the crosswalk or bike lane' },
+  { place: 'Toronto', camera: 'pie_cam-3', text: 'Alert me when a parked or stopped vehicle blocks the lane ahead' }
 ];
 
 var state = {
@@ -753,6 +755,14 @@ function loadVideos() {
   });
 }
 
+function useStream(id) {
+  var tile = tiles[0];
+  if (!tile || tile.select.value === id) return;
+  if (!state.videos.some(function (v) { return v.original_video === id; })) return;
+  tile.select.value = id;
+  onSelectVideo(tile);
+}
+
 function onSelectVideo(tile) {
   var id = tile.select.value;
   if (!id) return;
@@ -1190,16 +1200,17 @@ async function demoReset() {
 }
 
 function bindChrome() {
-  EXAMPLES.forEach(function (text) {
+  EXAMPLES.forEach(function (ex) {
     els.examples.appendChild(el('button', {
       type: 'button',
       class: 'example',
-      text: text,
+      title: 'Fill the rule and switch the stream to ' + ex.camera,
       onclick: function () {
-        els.ruleText.value = text;
+        els.ruleText.value = ex.text;
         els.ruleText.focus();
+        useStream('camera:' + ex.camera);
       }
-    }));
+    }, el('span', { class: 'ex-place', text: ex.place }), document.createTextNode(ex.text)));
   });
   els.previewBtn.addEventListener('click', previewRule);
   els.activateBtn.addEventListener('click', activateRule);

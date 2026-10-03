@@ -430,6 +430,8 @@ def compile_rule(llm, text, vocab: dict) -> dict:
         "description would literally contain, never action phrases like 'steps into road'. "
         "Leave caption_any empty when require_classes already captures the objects involved.\n"
         "require_classes may list only COCO classes, each mapped to a minimum integer count (>= 1).\n"
+        "require_classes is an all-of gate: every listed class must be detected in the same segment. "
+        "For a generic word like 'vehicle', list just 'car', never every vehicle class.\n"
         "cameras and locations must be copied from the vocab lists below, and only when the "
         "user clearly limits the rule to them. Otherwise use empty arrays, which means all "
         "cameras and all locations.\n"
