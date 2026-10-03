@@ -12,6 +12,7 @@ import urllib.error
 import urllib.request
 
 PREFERRED_MODELS = (
+    "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B",
     "Qwen/Qwen3-235B-A22B-Instruct-2507",
     "meta-llama/Llama-3.3-70B-Instruct",
     "openai/gpt-oss-120b",
@@ -365,6 +366,9 @@ class LLMClient:
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
+        if "nemotron" in body["model"].lower():
+            # Nemotron reasons by default and spends max_tokens on it, leaving content empty.
+            body["chat_template_kwargs"] = {"enable_thinking": False}
         data = self._request("POST", "/chat/completions", body)
         try:
             content = data["choices"][0]["message"]["content"]
